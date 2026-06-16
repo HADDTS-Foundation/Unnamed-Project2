@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gene Atlas Explorer - Interactor Table</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#00616d",
+                        "error": "#ba1a1a",
+                        "surface-variant": "#d3e4fe",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#010202",
+                        "on-surface-variant": "#44474f",
+                        "on-error-container": "#93000a",
+                        "surface-container-high": "#dce9ff",
+                        "outline": "#75777f",
+                        "secondary-container": "#00e3fd",
+                        "surface-container": "#e5eeff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "outline-variant": "#c5c6d0",
+                        "on-tertiary-fixed-variant": "#434749",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-fixed-variant": "#004f58",
+                        "secondary-fixed": "#9cf0ff",
+                        "on-tertiary-fixed": "#181c1e",
+                        "primary-fixed": "#d8e2ff",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-primary": "#b1c6f9",
+                        "primary-fixed-dim": "#b1c6f9",
+                        "on-background": "#0b1c30",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f8f9ff",
+                        "surface-tint": "#495e8a",
+                        "background": "#f8f9ff",
+                        "secondary-fixed-dim": "#00daf3",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#001a42",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "inverse-surface": "#213145",
+                        "secondary": "#006875",
+                        "on-tertiary-container": "#818587",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-container": "#191d1f",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-container": "#7084b3",
+                        "on-error": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary-fixed": "#001f24",
+                        "primary-container": "#001b44",
+                        "primary": "#00020a",
+                        "on-primary-fixed-variant": "#314671",
+                        "tertiary-fixed": "#e0e3e5",
+                        "surface-container-lowest": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "data-row-height": "32px",
+                        "stack-gap": "12px",
+                        "unit": "4px",
+                        "container-padding": "24px",
+                        "grid-gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter", "sans-serif"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "headline-sm": ["Hanken Grotesk", "sans-serif"],
+                        "data-mono": ["JetBrains Mono", "monospace"],
+                        "label-caps": ["Hanken Grotesk", "sans-serif"],
+                        "headline-md": ["Hanken Grotesk", "sans-serif"],
+                        "display-lg": ["Hanken Grotesk", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "data-mono": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@600;700&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-high border-b border-outline-variant dark:border-outline fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-14">
+<div class="flex items-center gap-6">
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">CTBP1 Atlas</h1>
+<nav class="hidden md:flex gap-6">
+<a class="text-on-surface-variant dark:text-outline-variant font-label-caps text-label-caps hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors py-1" href="#">Provenance</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-caps text-label-caps hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors py-1" href="#">Documentation</a>
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 font-label-caps text-label-caps opacity-80 transition-all duration-150" href="#">Methods</a>
+</nav>
+</div>
+<div class="flex-1 max-w-md mx-6">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-1.5 pl-10 pr-4 text-body-sm focus:outline-none focus:border-secondary-container focus:ring-2 focus:ring-secondary-container/20 transition-all" placeholder="Search genes, pathways, variants..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="font-label-caps text-label-caps text-secondary border border-secondary rounded px-4 py-1.5 hover:bg-secondary/10 transition-colors">Export</button>
+<button class="font-label-caps text-label-caps bg-primary text-on-primary rounded px-4 py-1.5 hover:bg-primary/90 transition-colors">Feedback</button>
+<div class="flex gap-2 text-on-surface-variant">
+<button class="p-1 hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="help">help</span></button>
+<button class="p-1 hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+<button class="p-1 hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined" data-icon="account_circle">account_circle</span></button>
+</div>
+</div>
+</header>
+<div class="flex h-screen pt-14">
+<!-- SideNavBar (Left - Filters/Lenses) -->
+<aside class="bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline fixed left-0 top-14 w-[280px] h-[calc(100vh-56px)] flex flex-col p-4 z-40">
+<div class="mb-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-bold font-headline-sm">CF</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">Disease Lenses</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Gene Atlas Explorer</p>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary font-bold rounded-lg scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="biotech">biotech</span>
+<span class="font-label-caps text-label-caps">Lenses</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="balance">balance</span>
+<span class="font-label-caps text-label-caps">Weights</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="filter_list">filter_list</span>
+<span class="font-label-caps text-label-caps">Filters</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-label-caps text-label-caps">Controls</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="layers">layers</span>
+<span class="font-label-caps text-label-caps">Layers</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<button class="w-full mb-4 font-label-caps text-label-caps text-secondary border border-secondary rounded px-4 py-2 hover:bg-secondary/10 transition-colors">Reset Filters</button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-caps text-label-caps">Help</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="check_circle">check_circle</span>
+<span class="font-label-caps text-label-caps">Status</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Content (Center Pane) -->
+<main class="flex-1 ml-[280px] mr-[320px] p-container-padding overflow-y-auto bg-surface">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface mb-1">Interactor Table</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Showing top 500 significant interactors for CTBP1 based on active lens.</p>
+</div>
+<div class="flex gap-2">
+<button class="flex items-center gap-1 font-label-caps text-label-caps px-3 py-1.5 border border-outline-variant rounded hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">view_column</span> Columns
+                    </button>
+<button class="flex items-center gap-1 font-label-caps text-label-caps px-3 py-1.5 border border-outline-variant rounded hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">download</span> CSV
+                    </button>
+</div>
+</div>
+<!-- Data Table Container -->
+<div class="bg-surface rounded-lg border border-outline-variant overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead class="bg-primary text-on-primary font-label-caps text-label-caps sticky top-0 z-10">
+<tr>
+<th class="p-2 border-b border-outline-variant w-12 text-center">#</th>
+<th class="p-2 border-b border-outline-variant w-24">Gene</th>
+<th class="p-2 border-b border-outline-variant w-20">Type</th>
+<th class="p-2 border-b border-outline-variant w-32">Comp Score</th>
+<th class="p-2 border-b border-outline-variant w-16 text-center">Phys</th>
+<th class="p-2 border-b border-outline-variant w-16 text-center">Lit</th>
+<th class="p-2 border-b border-outline-variant w-16 text-center">Net</th>
+<th class="p-2 border-b border-outline-variant">Areas</th>
+<th class="p-2 border-b border-outline-variant w-24 text-center">ClinVar</th>
+</tr>
+</thead>
+<tbody class="font-data-mono text-data-mono divide-y divide-outline-variant/50">
+<!-- Row 1 (Selected/Active) -->
+<tr class="h-data-row-height bg-secondary-container/20 hover:bg-secondary-container/30 cursor-pointer transition-colors">
+<td class="p-2 text-center text-on-surface-variant">1</td>
+<td class="p-2 font-bold text-on-surface">HDAC1</td>
+<td class="p-2"><span class="px-1.5 py-0.5 rounded-sm bg-surface-variant text-on-surface-variant text-[10px]">ENZ</span></td>
+<td class="p-2">
+<div class="flex items-center gap-2">
+<span class="w-8">0.98</span>
+<div class="h-2 w-16 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 98%"></div>
+</div>
+</div>
+</td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">radio_button_unchecked</span></td>
+<td class="p-2 truncate max-w-[150px] text-body-sm text-on-surface-variant">Neurological, Dev</td>
+<td class="p-2 text-center"><span class="px-1.5 py-0.5 rounded-sm bg-error/10 text-error font-bold text-[10px]">12 P/LP</span></td>
+</tr>
+<!-- Row 2 -->
+<tr class="h-data-row-height hover:bg-surface-container-low cursor-pointer transition-colors">
+<td class="p-2 text-center text-on-surface-variant">2</td>
+<td class="p-2 text-on-surface">ZEB1</td>
+<td class="p-2"><span class="px-1.5 py-0.5 rounded-sm bg-surface-variant text-on-surface-variant text-[10px]">TF</span></td>
+<td class="p-2">
+<div class="flex items-center gap-2">
+<span class="w-8">0.92</span>
+<div class="h-2 w-16 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 92%"></div>
+</div>
+</div>
+</td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 truncate max-w-[150px] text-body-sm text-on-surface-variant">Ocular, Dev</td>
+<td class="p-2 text-center"><span class="px-1.5 py-0.5 rounded-sm bg-error/10 text-error font-bold text-[10px]">4 P/LP</span></td>
+</tr>
+<!-- Row 3 -->
+<tr class="h-data-row-height bg-surface-bright hover:bg-surface-container-low cursor-pointer transition-colors">
+<td class="p-2 text-center text-on-surface-variant">3</td>
+<td class="p-2 text-on-surface">EHMT2</td>
+<td class="p-2"><span class="px-1.5 py-0.5 rounded-sm bg-surface-variant text-on-surface-variant text-[10px]">ENZ</span></td>
+<td class="p-2">
+<div class="flex items-center gap-2">
+<span class="w-8">0.87</span>
+<div class="h-2 w-16 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 87%"></div>
+</div>
+</div>
+</td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">radio_button_unchecked</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 truncate max-w-[150px] text-body-sm text-on-surface-variant">Neurological</td>
+<td class="p-2 text-center"><span class="px-1.5 py-0.5 rounded-sm bg-surface-variant text-on-surface-variant text-[10px]">0 P/LP</span></td>
+</tr>
+<!-- Row 4 -->
+<tr class="h-data-row-height hover:bg-surface-container-low cursor-pointer transition-colors">
+<td class="p-2 text-center text-on-surface-variant">4</td>
+<td class="p-2 text-on-surface">EP300</td>
+<td class="p-2"><span class="px-1.5 py-0.5 rounded-sm bg-surface-variant text-on-surface-variant text-[10px]">ENZ</span></td>
+<td class="p-2">
+<div class="flex items-center gap-2">
+<span class="w-8">0.85</span>
+<div class="h-2 w-16 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 85%"></div>
+</div>
+</div>
+</td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-on-surface-variant">radio_button_unchecked</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 text-center"><span class="material-symbols-outlined text-[16px] text-secondary fill">check_circle</span></td>
+<td class="p-2 truncate max-w-[150px] text-body-sm text-on-surface-variant">Growth, Facial</td>
+<td class="p-2 text-center"><span class="px-1.5 py-0.5 rounded-sm bg-error/10 text-error font-bold text-[10px]">8 P/LP</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination Footer -->
+<div class="border-t border-outline-variant p-2 flex justify-between items-center bg-surface-container-low">
+<span class="font-body-sm text-body-sm text-on-surface-variant">Showing 1-4 of 500</span>
+<div class="flex gap-1">
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant disabled:opacity-50"><span class="material-symbols-outlined text-[18px]">chevron_left</span></button>
+<button class="p-1 rounded hover:bg-surface-container text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">chevron_right</span></button>
+</div>
+</div>
+</div>
+</main>
+<!-- SideNavBar (Right - Dossier) -->
+<aside class="bg-surface-container-low dark:bg-surface-container-lowest border-l border-outline-variant dark:border-outline fixed right-0 top-14 w-[320px] h-[calc(100vh-56px)] flex flex-col z-40">
+<!-- Dossier Header -->
+<div class="p-4 border-b border-outline-variant">
+<div class="flex items-center gap-3 mb-4">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">genetics</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">HDAC1</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Selected Entity Data</p>
+</div>
+</div>
+<!-- Horizontal Nav mapping to Dossier SideNavBar JSON intent -->
+<nav class="flex border-b border-outline-variant">
+<button class="flex-1 pb-2 border-b-2 border-secondary font-label-caps text-label-caps text-secondary font-bold text-center">Overview</button>
+<button class="flex-1 pb-2 border-b-2 border-transparent font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors text-center">Evidence</button>
+<button class="flex-1 pb-2 border-b-2 border-transparent font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors text-center">Literature</button>
+<button class="flex-1 pb-2 border-b-2 border-transparent font-label-caps text-label-caps text-on-surface-variant hover:text-on-surface transition-colors text-center">Citations</button>
+</nav>
+</div>
+<!-- Dossier Content Scrollable Area -->
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4 font-body-sm">
+<!-- Summary Card -->
+<div class="bg-surface p-3 rounded border border-outline-variant">
+<h3 class="font-label-caps text-label-caps text-on-surface mb-1">Gene Function Summary</h3>
+<p class="text-on-surface-variant">Histone deacetylase 1. Responsible for the deacetylation of lysine residues on the N-terminal part of the core histones (H2A, H2B, H3 and H4). Plays an important role in transcriptional regulation, cell cycle progression and developmental events.</p>
+</div>
+<!-- Scores Breakdown -->
+<div class="bg-surface p-3 rounded border border-outline-variant">
+<h3 class="font-label-caps text-label-caps text-on-surface mb-3 flex items-center justify-between">
+                        Composite Score Breakdown
+                        <span class="font-data-mono font-bold text-secondary">0.98</span>
+</h3>
+<div class="space-y-2">
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface-variant">Physical Interaction (BioGRID)</span>
+<span class="font-data-mono">1.00</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 100%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface-variant">Co-expression (GTEx)</span>
+<span class="font-data-mono">0.85</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary/80" style="width: 85%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-xs mb-1">
+<span class="text-on-surface-variant">Literature Mining (PubTator)</span>
+<span class="font-data-mono">0.92</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary/90" style="width: 92%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Clinical Variants snippet -->
+<div class="bg-surface p-3 rounded border border-outline-variant border-t-4 border-t-error">
+<h3 class="font-label-caps text-label-caps text-on-surface mb-2 flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-error">warning</span>
+                        Clinical Variants (ClinVar)
+                    </h3>
+<ul class="space-y-2 divide-y divide-outline-variant/30">
+<li class="pt-1 flex justify-between items-center">
+<span class="font-data-mono text-xs">c.112A&gt;G (p.Lys38Glu)</span>
+<span class="px-1.5 py-0.5 bg-error/10 text-error rounded-sm text-[10px] font-bold">Pathogenic</span>
+</li>
+<li class="pt-2 flex justify-between items-center">
+<span class="font-data-mono text-xs">c.341T&gt;C (p.Leu114Pro)</span>
+<span class="px-1.5 py-0.5 bg-error/10 text-error rounded-sm text-[10px] font-bold">Pathogenic</span>
+</li>
+</ul>
+</div>
+</div>
+</aside>
+</div>
+</body></html>

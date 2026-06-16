@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CTBP1 Atlas - Findings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#00616d",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#d3e4fe",
+                      "error-container": "#ffdad6",
+                      "tertiary": "#010202",
+                      "on-surface-variant": "#44474f",
+                      "on-error-container": "#93000a",
+                      "surface-container-high": "#dce9ff",
+                      "outline": "#75777f",
+                      "secondary-container": "#00e3fd",
+                      "surface-container": "#e5eeff",
+                      "inverse-on-surface": "#eaf1ff",
+                      "outline-variant": "#c5c6d0",
+                      "on-tertiary-fixed-variant": "#434749",
+                      "on-surface": "#0b1c30",
+                      "on-secondary-fixed-variant": "#004f58",
+                      "secondary-fixed": "#9cf0ff",
+                      "on-tertiary-fixed": "#181c1e",
+                      "primary-fixed": "#d8e2ff",
+                      "surface-container-low": "#eff4ff",
+                      "inverse-primary": "#b1c6f9",
+                      "primary-fixed-dim": "#b1c6f9",
+                      "on-background": "#0b1c30",
+                      "on-secondary": "#ffffff",
+                      "surface": "#f8f9ff",
+                      "surface-tint": "#495e8a",
+                      "background": "#f8f9ff",
+                      "secondary-fixed-dim": "#00daf3",
+                      "surface-dim": "#cbdbf5",
+                      "on-primary": "#ffffff",
+                      "on-primary-fixed": "#001a42",
+                      "tertiary-fixed-dim": "#c4c7c9",
+                      "inverse-surface": "#213145",
+                      "secondary": "#006875",
+                      "on-tertiary-container": "#818587",
+                      "surface-container-highest": "#d3e4fe",
+                      "tertiary-container": "#191d1f",
+                      "on-tertiary": "#ffffff",
+                      "on-primary-container": "#7084b3",
+                      "on-error": "#ffffff",
+                      "surface-bright": "#f8f9ff",
+                      "on-secondary-fixed": "#001f24",
+                      "primary-container": "#001b44",
+                      "primary": "#00020a",
+                      "on-primary-fixed-variant": "#314671",
+                      "tertiary-fixed": "#e0e3e5",
+                      "surface-container-lowest": "#ffffff"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "data-row-height": "32px",
+                      "stack-gap": "12px",
+                      "unit": "4px",
+                      "container-padding": "24px",
+                      "grid-gutter": "16px"
+              },
+              "fontFamily": {
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ],
+                      "headline-sm": [
+                              "Hanken Grotesk"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Hanken Grotesk"
+                      ],
+                      "headline-md": [
+                              "Hanken Grotesk"
+                      ],
+                      "display-lg": [
+                              "Hanken Grotesk"
+                      ]
+              },
+              "fontSize": {
+                      "body-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "22px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-sm": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "data-mono": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-md": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface-container-high border-b border-outline-variant dark:border-outline fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-14">
+<div class="flex items-center gap-6">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">CTBP1 Atlas</span>
+<nav class="flex gap-4">
+<a class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors font-label-caps text-label-caps px-2 py-1 rounded" href="#">Provenance</a>
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 font-label-caps text-label-caps px-2 py-1" href="#">Documentation</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors font-label-caps text-label-caps px-2 py-1 rounded" href="#">Methods</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="pl-8 pr-3 py-1 bg-surface border border-outline-variant rounded focus:border-secondary focus:ring-1 focus:ring-secondary outline-none text-sm w-64 transition-all" placeholder="Search..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-4 py-2 rounded flex items-center gap-2 hover:bg-opacity-90 transition-opacity">
+                Feedback
+            </button>
+<button class="border border-secondary text-secondary font-label-caps text-label-caps px-4 py-2 rounded flex items-center gap-2 hover:bg-secondary/10 transition-colors">
+                Export
+            </button>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<button class="p-1 hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">account_circle</span></button>
+<button class="p-1 hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">settings</span></button>
+<button class="p-1 hover:bg-surface-container rounded-full transition-colors"><span class="material-symbols-outlined">help</span></button>
+</div>
+</div>
+</header>
+<div class="flex pt-14 h-screen">
+<!-- Left SideNavBar (Global Filters) -->
+<aside class="bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline fixed left-0 top-14 w-[280px] h-[calc(100vh-56px)] flex flex-col p-4 z-40">
+<div class="mb-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined">science</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">Disease Lenses</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Gene Atlas Explorer</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 overflow-y-auto">
+<button class="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:text-on-surface rounded-lg transition-colors text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">biotech</span> Lenses
+                </button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:text-on-surface rounded-lg transition-colors text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">balance</span> Weights
+                </button>
+<button class="w-full flex items-center gap-3 px-3 py-2 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary font-bold rounded-lg scale-95 transition-transform duration-200 text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">filter_list</span> Filters
+                </button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:text-on-surface rounded-lg transition-colors text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">settings_input_component</span> Controls
+                </button>
+<button class="w-full flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface hover:text-on-surface rounded-lg transition-colors text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">layers</span> Layers
+                </button>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<button class="w-full py-2 mb-4 border border-outline text-on-surface font-label-caps text-label-caps rounded hover:bg-surface-container transition-colors">Reset Filters</button>
+<div class="flex gap-4 font-label-caps text-label-caps text-on-surface-variant">
+<button class="flex items-center gap-1 hover:text-on-surface"><span class="material-symbols-outlined text-sm">help</span> Help</button>
+<button class="flex items-center gap-1 hover:text-on-surface"><span class="material-symbols-outlined text-sm">check_circle</span> Status</button>
+</div>
+</div>
+</aside>
+<!-- Central Findings View -->
+<main class="flex-1 ml-[280px] mr-[320px] bg-background p-6 overflow-y-auto">
+<div class="max-w-5xl mx-auto space-y-6">
+<!-- Header & Filters -->
+<div class="flex justify-between items-end border-b border-outline-variant pb-4">
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface">Findings View</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">124 Memberships Identified</p>
+</div>
+<div class="flex gap-2">
+<select class="bg-surface border border-outline-variant rounded px-3 py-1 font-body-sm text-body-sm text-on-surface focus:ring-secondary focus:border-secondary">
+<option>All Areas</option>
+<option>Neurological</option>
+<option>Developmental</option>
+</select>
+<select class="bg-surface border border-outline-variant rounded px-3 py-1 font-body-sm text-body-sm text-on-surface focus:ring-secondary focus:border-secondary">
+<option>Severity: All</option>
+<option>High</option>
+<option>Medium</option>
+</select>
+</div>
+</div>
+<!-- Findings List (Mocking Bento/List Hybrid) -->
+<div class="space-y-4">
+<!-- Finding Item 1 -->
+<div class="bg-surface border border-outline-variant rounded-lg p-4 flex items-center gap-4 hover:border-secondary transition-colors cursor-pointer relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="w-16 h-16 bg-surface-variant rounded flex items-center justify-center font-data-mono text-data-mono text-on-surface shrink-0">
+                            CTBP1
+                        </div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Neurodevelopmental Delay</span>
+<span class="px-2 py-0.5 rounded bg-error-container text-on-error-container font-label-caps text-[10px]">High Severity</span>
+</div>
+<div class="flex items-center gap-4 font-body-sm text-body-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">category</span> Clinical Area</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">source</span> ClinVar, OMIM</span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2 text-on-surface-variant group-hover:text-secondary transition-colors">
+<span class="font-label-caps text-label-caps">View Details</span>
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<!-- Finding Item 2 -->
+<div class="bg-surface border border-outline-variant rounded-lg p-4 flex items-center gap-4 hover:border-secondary transition-colors cursor-pointer relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-secondary-container"></div>
+<div class="w-16 h-16 bg-surface-variant rounded flex items-center justify-center font-data-mono text-data-mono text-on-surface shrink-0">
+                            HADD
+                        </div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Hypotonia</span>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-on-surface font-label-caps text-[10px]">Moderate</span>
+</div>
+<div class="flex items-center gap-4 font-body-sm text-body-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">category</span> Musculoskeletal</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">source</span> Literature</span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2 text-on-surface-variant group-hover:text-secondary transition-colors">
+<span class="font-label-caps text-label-caps">View Details</span>
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+<!-- Finding Item 3 -->
+<div class="bg-surface border border-outline-variant rounded-lg p-4 flex items-center gap-4 hover:border-secondary transition-colors cursor-pointer relative overflow-hidden group">
+<div class="absolute top-0 left-0 w-1 h-full bg-outline-variant"></div>
+<div class="w-16 h-16 bg-surface-variant rounded flex items-center justify-center font-data-mono text-data-mono text-on-surface shrink-0">
+                            CTBP2
+                        </div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="font-headline-sm text-headline-sm font-semibold text-on-surface">Structural Brain Anomalies</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface font-label-caps text-[10px]">Low Severity</span>
+</div>
+<div class="flex items-center gap-4 font-body-sm text-body-sm text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">category</span> Neurological</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">source</span> GWAS</span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-2 text-on-surface-variant group-hover:text-secondary transition-colors">
+<span class="font-label-caps text-label-caps">View Details</span>
+<span class="material-symbols-outlined">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Right SideNavBar (Dossier) -->
+<aside class="bg-surface-container-low dark:bg-surface-container-lowest border-l border-outline-variant dark:border-outline fixed right-0 top-14 w-[320px] h-[calc(100vh-56px)] flex flex-col p-4 z-40">
+<div class="mb-6 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">
+<span class="material-symbols-outlined">folder_special</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">Dossier</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Selected Entity Data</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<button class="w-full flex items-center gap-3 py-2 text-on-surface-variant dark:text-outline-variant pl-4 hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded transition-colors text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">article</span> Overview
+                </button>
+<button class="w-full flex items-center gap-3 py-2 text-secondary border-l-4 border-secondary pl-3 font-bold opacity-90 transition-opacity bg-surface-container rounded-r text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">analytics</span> Evidence
+                </button>
+<button class="w-full flex items-center gap-3 py-2 text-on-surface-variant dark:text-outline-variant pl-4 hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded transition-colors text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">book</span> Literature
+                </button>
+<button class="w-full flex items-center gap-3 py-2 text-on-surface-variant dark:text-outline-variant pl-4 hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded transition-colors text-left font-label-caps text-label-caps">
+<span class="material-symbols-outlined text-sm">format_quote</span> Citations
+                </button>
+</nav>
+<div class="mt-auto p-4 bg-surface rounded border border-outline-variant">
+<h4 class="font-label-caps text-label-caps text-on-surface mb-2">Selected Context</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-3">Currently viewing evidence related to CTBP1 Neurodevelopmental Delay.</p>
+<button class="w-full py-1.5 bg-secondary text-on-secondary font-label-caps text-label-caps rounded hover:bg-opacity-90 transition-opacity">Generate Report</button>
+</div>
+</aside>
+</div>
+</body></html>

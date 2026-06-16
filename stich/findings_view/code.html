@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CTBP1 Atlas - Findings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed": "#9cf0ff",
+                        "surface-bright": "#f8f9ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-container": "#191d1f",
+                        "on-primary-fixed": "#001a42",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary-container": "#818587",
+                        "primary-container": "#001b44",
+                        "outline-variant": "#c5c6d0",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary-container": "#7084b3",
+                        "background": "#f8f9ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#00e3fd",
+                        "primary": "#00020a",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#004f58",
+                        "secondary-fixed-dim": "#00daf3",
+                        "surface": "#f8f9ff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-fixed": "#181c1e",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-fixed": "#e0e3e5",
+                        "secondary": "#006875",
+                        "primary-fixed-dim": "#b1c6f9",
+                        "inverse-surface": "#213145",
+                        "on-background": "#0b1c30",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "tertiary": "#010202",
+                        "on-secondary-container": "#00616d",
+                        "inverse-primary": "#b1c6f9",
+                        "on-secondary-fixed": "#001f24",
+                        "on-surface-variant": "#44474f",
+                        "tertiary-fixed-dim": "#c4c7c9",
+                        "on-surface": "#0b1c30",
+                        "on-tertiary-fixed-variant": "#434749",
+                        "surface-tint": "#495e8a",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#314671",
+                        "outline": "#75777f",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container": "#e5eeff",
+                        "surface-container-low": "#eff4ff",
+                        
+                        "cat-oncology": "#ef4444",
+                        "cat-metabolic": "#10b981",
+                        "cat-neurodegen": "#f59e0b",
+                        "cat-cns": "#8b5cf6"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "stack-gap": "12px",
+                        "data-row-height": "32px",
+                        "grid-gutter": "16px",
+                        "unit": "4px",
+                        "container-padding": "24px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Hanken Grotesk"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-sm": ["Hanken Grotesk"],
+                        "headline-md": ["Hanken Grotesk"],
+                        "label-caps": ["Hanken Grotesk"],
+                        "data-mono": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }],
+                        "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }],
+                        "headline-sm": ["16px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "label-caps": ["11px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "data-mono": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f8f9ff; }
+        .card-shadow { box-shadow: 0 1px 3px rgba(0,2,10,0.05); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="text-on-surface font-body-md antialiased pb-20">
+<!-- TopAppBar -->
+<header class="bg-surface text-on-surface font-headline-md docked full-width top-0 border-b border-outline-variant flat no shadows transition-colors duration-200 flex justify-between items-center px-container-padding h-16 w-full sticky z-50">
+<div class="flex items-center gap-4">
+<button class="hover:bg-surface-container rounded-full p-2 -ml-2 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[24px]">menu</span>
+</button>
+<div class="flex items-center gap-2">
+<img alt="HADDS Foundation" class="h-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCTOph6GqIwNZpwz-VJ_YYW3ska7D3M23IbOh0BHep_S9mm9CgAh_zk9nfr380JKYRksi7DvTTp9EdQtC4PruSjSzxCJxSy0TI9fntvThCRf6Y9sYq_luRkf8WFdNPH6SGWweA0M5i11EYVvqJJEuKj63g3l_0_AHLw74euDx1QliLrovDNhC_dmHZHspISP5CBuxRJA6MhM1NIiWjexWBnAiZ70oMNfWI9sXLGlpgpB6aN_FWs2P_48eXIFyFQXo0WkCMihmruDXI"/>
+<span class="font-bold text-primary ml-2 border-l border-outline-variant pl-2 h-4 flex items-center">CTBP1 ATLAS</span>
+</div>
+</div>
+<button class="hover:bg-surface-container rounded-full p-2 -mr-2 text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[24px]">help_outline</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="p-container-padding max-w-lg mx-auto">
+<div class="mb-6">
+<h1 class="font-headline-md text-primary mb-1">Discoveries</h1>
+<p class="font-body-sm text-on-surface-variant">Blended, de-duplicated leads · click to focus</p>
+</div>
+<div class="flex flex-col gap-stack-gap">
+<!-- Card 1: Strongest -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 card-shadow relative overflow-hidden group cursor-pointer hover:border-primary-fixed-dim transition-colors">
+<div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider">STRONGEST</span>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+</div>
+<h2 class="font-headline-md text-primary mb-1">HDAC1</h2>
+<p class="font-body-md text-on-surface-variant">Strongest composite connection (97/100), typed "Core complex"</p>
+</div>
+<!-- Card 2: Oncology -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 card-shadow relative overflow-hidden group cursor-pointer hover:border-primary-fixed-dim transition-colors">
+<div class="absolute top-0 left-0 w-full h-1 bg-cat-oncology"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider">ONCOLOGY</span>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+</div>
+<h2 class="font-headline-md text-cat-oncology mb-1">TLE2</h2>
+<p class="font-body-md text-on-surface-variant">Top exemplar for Oncology — cyst</p>
+</div>
+<!-- Card 3: Metabolic -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 card-shadow relative overflow-hidden group cursor-pointer hover:border-primary-fixed-dim transition-colors">
+<div class="absolute top-0 left-0 w-full h-1 bg-cat-metabolic"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider">METABOLIC</span>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+</div>
+<h2 class="font-headline-md text-cat-metabolic mb-1">HNF4A</h2>
+<p class="font-body-md text-on-surface-variant">Top exemplar for Metabolic disease — type 2 diabetes mellitus</p>
+</div>
+<!-- Card 4: Neurodegen -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 card-shadow relative overflow-hidden group cursor-pointer hover:border-primary-fixed-dim transition-colors">
+<div class="absolute top-0 left-0 w-full h-1 bg-cat-neurodegen"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider">NEURODEGEN</span>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+</div>
+<h2 class="font-headline-md text-cat-neurodegen mb-1">HTT</h2>
+<p class="font-body-md text-on-surface-variant">Top exemplar for Neurodegeneration — Huntington disease</p>
+</div>
+<!-- Card 5: CNS -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 card-shadow relative overflow-hidden group cursor-pointer hover:border-primary-fixed-dim transition-colors">
+<div class="absolute top-0 left-0 w-full h-1 bg-cat-cns"></div>
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-on-surface-variant uppercase tracking-wider">CNS</span>
+<span class="material-symbols-outlined text-outline text-[16px]">chevron_right</span>
+</div>
+<h2 class="font-headline-md text-cat-cns mb-1">MRPS15</h2>
+<p class="font-body-md text-on-surface-variant">Top exemplar for CNS / neuroscience — neurodegenerative disease</p>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-lowest font-label-caps text-label-caps text-on-surface fixed bottom-0 w-full z-50 border-t border-outline-variant shadow-sm flex justify-around items-center py-2 px-4 md:hidden">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1">auto_awesome_motion</span>
+<span>Constellation</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1">hub</span>
+<span>Network</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-secondary scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1">table_chart</span>
+<span>Table</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-secondary-container text-on-secondary-container rounded-full px-4 py-1 scale-95 active:scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">insights</span>
+<span>Findings</span>
+</a>
+</nav>
+</body></html>

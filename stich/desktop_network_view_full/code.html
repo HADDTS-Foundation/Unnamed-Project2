@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CTBP1 Atlas - Network View</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00616d",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#d3e4fe",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#010202",
+                    "on-surface-variant": "#44474f",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#dce9ff",
+                    "outline": "#75777f",
+                    "secondary-container": "#00e3fd",
+                    "surface-container": "#e5eeff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "outline-variant": "#c5c6d0",
+                    "on-tertiary-fixed-variant": "#434749",
+                    "on-surface": "#0b1c30",
+                    "on-secondary-fixed-variant": "#004f58",
+                    "secondary-fixed": "#9cf0ff",
+                    "on-tertiary-fixed": "#181c1e",
+                    "primary-fixed": "#d8e2ff",
+                    "surface-container-low": "#eff4ff",
+                    "inverse-primary": "#b1c6f9",
+                    "primary-fixed-dim": "#b1c6f9",
+                    "on-background": "#0b1c30",
+                    "on-secondary": "#ffffff",
+                    "surface": "#f8f9ff",
+                    "surface-tint": "#495e8a",
+                    "background": "#f8f9ff",
+                    "secondary-fixed-dim": "#00daf3",
+                    "surface-dim": "#cbdbf5",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#001a42",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "inverse-surface": "#213145",
+                    "secondary": "#006875",
+                    "on-tertiary-container": "#818587",
+                    "surface-container-highest": "#d3e4fe",
+                    "tertiary-container": "#191d1f",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#7084b3",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-fixed": "#001f24",
+                    "primary-container": "#001b44",
+                    "primary": "#00020a",
+                    "on-primary-fixed-variant": "#314671",
+                    "tertiary-fixed": "#e0e3e5",
+                    "surface-container-lowest": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "data-row-height": "32px",
+                    "stack-gap": "12px",
+                    "unit": "4px",
+                    "container-padding": "24px",
+                    "grid-gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Hanken Grotesk"
+                    ],
+                    "data-mono": [
+                            "JetBrains Mono"
+                    ],
+                    "label-caps": [
+                            "Hanken Grotesk"
+                    ],
+                    "headline-md": [
+                            "Hanken Grotesk"
+                    ],
+                    "display-lg": [
+                            "Hanken Grotesk"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "22px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "18px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-sm": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "data-mono": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-caps": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        .network-node {
+            transition: all 0.2s ease;
+        }
+        .network-node:hover {
+            stroke: #006875;
+            stroke-width: 2px;
+            cursor: pointer;
+        }
+        .network-edge {
+            stroke-dasharray: 4;
+            animation: dash 20s linear infinite;
+        }
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 1000;
+            }
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md antialiased h-screen overflow-hidden flex flex-col">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-14 bg-surface dark:bg-surface-container-high border-b border-outline-variant dark:border-outline flat no shadows">
+<div class="flex items-center gap-6 h-full">
+<div class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">hub</span>
+                CTBP1 Atlas
+            </div>
+<div class="hidden md:flex h-full items-center gap-6 ml-8">
+<a class="h-full flex items-center text-on-surface-variant dark:text-outline-variant font-label-caps text-label-caps hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors px-2" href="#">Provenance</a>
+<a class="h-full flex items-center text-on-surface-variant dark:text-outline-variant font-label-caps text-label-caps hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors px-2" href="#">Documentation</a>
+<a class="h-full flex items-center text-secondary font-bold border-b-2 border-secondary pb-1 font-label-caps text-label-caps hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors px-2 opacity-80 transition-all duration-150" href="#">Methods</a>
+</div>
+</div>
+<!-- Search Bar (on_left in design, but visually balanced here) -->
+<div class="flex-1 max-w-md mx-6 hidden lg:block">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-full py-1.5 pl-10 pr-4 font-body-sm text-body-sm focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 transition-all" placeholder="Search genes, variants, or phenotypes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="font-label-caps text-label-caps px-4 py-1.5 border border-secondary text-secondary rounded-full hover:bg-secondary/10 transition-colors">Export</button>
+<button class="font-label-caps text-label-caps px-4 py-1.5 bg-secondary text-on-secondary rounded-full hover:bg-secondary/90 transition-colors">Feedback</button>
+<div class="flex items-center gap-2 ml-2">
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="p-1.5 text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined text-[20px]">help</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Main Content Area with 3 Panes -->
+<main class="flex-1 mt-14 flex overflow-hidden">
+<!-- Left SideNavBar (Controls & Filters) -->
+<aside class="fixed left-0 top-14 w-[280px] h-[calc(100vh-56px)] flex flex-col p-4 bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline flat no shadows z-40 overflow-y-auto">
+<div class="mb-8">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">biotech</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">Disease Lenses</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Gene Atlas Explorer</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-secondary">biotech</span>
+<span class="font-label-caps text-label-caps">Lenses</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-secondary">balance</span>
+<span class="font-label-caps text-label-caps">Weights</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary font-bold rounded-lg scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">filter_list</span>
+<span class="font-label-caps text-label-caps">Filters</span>
+</a>
+<!-- Filter Accordion Example -->
+<div class="ml-8 mt-2 flex flex-col gap-1 border-l-2 border-surface-variant pl-2">
+<label class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface cursor-pointer p-1 hover:bg-surface-container rounded">
+<input checked="" class="rounded text-secondary focus:ring-secondary/50" type="checkbox"/>
+<span>Pathogenic</span>
+</label>
+<label class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface cursor-pointer p-1 hover:bg-surface-container rounded">
+<input checked="" class="rounded text-secondary focus:ring-secondary/50" type="checkbox"/>
+<span>Likely Pathogenic</span>
+</label>
+<label class="flex items-center gap-2 text-body-sm font-body-sm text-on-surface-variant cursor-pointer p-1 hover:bg-surface-container rounded">
+<input class="rounded text-secondary focus:ring-secondary/50" type="checkbox"/>
+<span>VUS</span>
+</label>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 mt-4 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-secondary">settings_input_component</span>
+<span class="font-label-caps text-label-caps">Controls</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-secondary">layers</span>
+<span class="font-label-caps text-label-caps">Layers</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-outline-variant">
+<button class="w-full mb-4 font-label-caps text-label-caps px-4 py-2 border border-outline text-on-surface rounded hover:bg-surface-container transition-colors">
+                    Reset Filters
+                </button>
+<div class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-1.5 text-on-surface-variant hover:text-on-surface text-body-sm font-body-sm" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span>
+                        Help
+                    </a>
+<a class="flex items-center gap-3 px-3 py-1.5 text-secondary text-body-sm font-body-sm" href="#">
+<span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        Status: Online
+                    </a>
+</div>
+</div>
+</aside>
+<!-- Center Canvas (Network View) -->
+<section class="ml-[280px] mr-[320px] flex-1 bg-surface-bright relative h-[calc(100vh-56px)] overflow-hidden flex items-center justify-center">
+<!-- Floating Network Controls -->
+<div class="absolute top-4 left-4 bg-surface/80 backdrop-blur-md border border-outline-variant rounded-lg shadow-sm p-2 flex gap-2 z-10">
+<button class="p-1.5 text-on-surface hover:bg-surface-container rounded transition-colors" title="Zoom In">
+<span class="material-symbols-outlined text-[20px]">zoom_in</span>
+</button>
+<button class="p-1.5 text-on-surface hover:bg-surface-container rounded transition-colors" title="Zoom Out">
+<span class="material-symbols-outlined text-[20px]">zoom_out</span>
+</button>
+<div class="w-px h-6 bg-outline-variant self-center mx-1"></div>
+<button class="p-1.5 text-on-surface hover:bg-surface-container rounded transition-colors" title="Reset View">
+<span class="material-symbols-outlined text-[20px]">fit_screen</span>
+</button>
+<button class="p-1.5 text-secondary bg-secondary/10 rounded transition-colors" title="Force Directed Layout">
+<span class="material-symbols-outlined text-[20px]">scatter_plot</span>
+</button>
+</div>
+<!-- Simulated Network Graph SVG -->
+<svg class="w-full h-full" preserveaspectratio="xMidYMid meet" viewbox="0 0 800 600">
+<!-- Edges -->
+<line class="network-edge" stroke="#c5c6d0" stroke-width="1.5" x1="400" x2="250" y1="300" y2="150"></line>
+<line stroke="#c5c6d0" stroke-width="1.5" x1="400" x2="550" y1="300" y2="180"></line>
+<line class="network-edge" stroke="#00e3fd" stroke-width="2" x1="400" x2="300" y1="300" y2="450"></line>
+<line stroke="#c5c6d0" stroke-width="1.5" x1="400" x2="500" y1="300" y2="420"></line>
+<line stroke="#c5c6d0" stroke-width="1" x1="250" x2="180" y1="150" y2="100"></line>
+<line stroke="#c5c6d0" stroke-width="1" x1="250" x2="150" y1="150" y2="200"></line>
+<line stroke="#c5c6d0" stroke-width="1" x1="550" x2="650" y1="180" y2="150"></line>
+<line class="network-edge" stroke="#00e3fd" stroke-width="1.5" x1="300" x2="200" y1="450" y2="500"></line>
+<!-- Central Node (CTBP1) -->
+<g class="network-node" transform="translate(400, 300)">
+<circle fill="#001b44" r="24"></circle>
+<circle fill="none" r="32" stroke="#001b44" stroke-opacity="0.3" stroke-width="1"></circle>
+<text dy=".3em" fill="#ffffff" font-family="Hanken Grotesk" font-size="12" font-weight="700" text-anchor="middle">CTBP1</text>
+</g>
+<!-- Connected Nodes -->
+<g class="network-node" transform="translate(250, 150)">
+<circle fill="#f8f9ff" r="16" stroke="#006875" stroke-width="2"></circle>
+<text dy="-22" fill="#44474f" font-family="Inter" font-size="10" text-anchor="middle">HDAC1</text>
+</g>
+<g class="network-node" transform="translate(550, 180)">
+<circle fill="#f8f9ff" r="16" stroke="#006875" stroke-width="2"></circle>
+<text dy="-22" fill="#44474f" font-family="Inter" font-size="10" text-anchor="middle">FOXP2</text>
+</g>
+<g class="network-node" transform="translate(300, 450)">
+<circle fill="#e5eeff" r="18" stroke="#00616d" stroke-width="2"></circle>
+<text dy="-24" fill="#00616d" font-family="Inter" font-size="11" font-weight="600" text-anchor="middle">PXD1</text>
+</g>
+<g class="network-node" transform="translate(500, 420)">
+<circle fill="#f8f9ff" r="14" stroke="#75777f" stroke-width="1"></circle>
+<text dy="-20" fill="#75777f" font-family="Inter" font-size="10" text-anchor="middle">NRIP1</text>
+</g>
+<!-- Outer Nodes -->
+<g class="network-node" transform="translate(180, 100)"><circle fill="#dce9ff" r="8"></circle></g>
+<g class="network-node" transform="translate(150, 200)"><circle fill="#dce9ff" r="8"></circle></g>
+<g class="network-node" transform="translate(650, 150)"><circle fill="#dce9ff" r="10"></circle></g>
+<g class="network-node" transform="translate(200, 500)"><circle fill="#9cf0ff" r="12"></circle></g>
+</svg>
+</section>
+<!-- Right SideNavBar (Dossier) -->
+<aside class="fixed right-0 top-14 w-[320px] h-[calc(100vh-56px)] flex flex-col p-4 bg-surface-container-low dark:bg-surface-container-lowest border-l border-outline-variant dark:border-outline flat no shadows z-40 overflow-y-auto">
+<div class="mb-6">
+<div class="flex items-center gap-3 mb-4 pb-4 border-b border-outline-variant">
+<div class="w-10 h-10 rounded bg-primary text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">schema</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">Dossier</h2>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Selected Entity Data</p>
+</div>
+</div>
+<!-- Entity Context Card (Bento style) -->
+<div class="bg-surface border border-outline-variant rounded-xl p-4 mb-4 shadow-sm">
+<div class="flex justify-between items-start mb-2">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">PXD1</h3>
+<span class="bg-surface-variant text-on-surface-variant font-data-mono text-[10px] px-2 py-0.5 rounded">GENE</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-3 line-clamp-3">
+                        Peroxiredoxin-like 1 domain containing. Thought to play a role in structural integrity of neural networks in early development.
+                    </p>
+<div class="grid grid-cols-2 gap-2 border-t border-surface-variant pt-2 mt-2">
+<div>
+<p class="font-label-caps text-[9px] text-outline">EXPRESSION</p>
+<p class="font-data-mono text-body-sm text-on-surface">High</p>
+</div>
+<div>
+<p class="font-label-caps text-[9px] text-outline">SCORE</p>
+<p class="font-data-mono text-body-sm text-secondary">0.892</p>
+</div>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 py-2 text-secondary border-l-4 border-secondary pl-3 font-bold opacity-90 transition-opacity" href="#">
+<span class="material-symbols-outlined text-[18px]">article</span>
+<span class="font-label-caps text-label-caps">Overview</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-outline-variant pl-4 hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span class="font-label-caps text-label-caps">Evidence</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-outline-variant pl-4 hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">book</span>
+<span class="font-label-caps text-label-caps">Literature</span>
+</a>
+<a class="flex items-center gap-3 py-2 text-on-surface-variant dark:text-outline-variant pl-4 hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">format_quote</span>
+<span class="font-label-caps text-label-caps">Citations</span>
+</a>
+</nav>
+<!-- Mini Visual within Dossier -->
+<div class="mt-8 border border-outline-variant rounded-lg overflow-hidden bg-surface">
+<div class="bg-surface-container px-3 py-1.5 border-b border-outline-variant">
+<span class="font-label-caps text-[10px] text-on-surface-variant">INTERACTION STRENGTH</span>
+</div>
+<div class="p-4 h-32 relative flex items-end gap-1 justify-center">
+<!-- Simple bar chart CSS based -->
+<div class="w-6 bg-surface-variant rounded-t relative group"><div class="absolute inset-x-0 bottom-0 bg-secondary h-[40%] rounded-t group-hover:h-[45%] transition-all"></div></div>
+<div class="w-6 bg-surface-variant rounded-t relative group"><div class="absolute inset-x-0 bottom-0 bg-secondary h-[65%] rounded-t group-hover:h-[70%] transition-all"></div></div>
+<div class="w-6 bg-surface-variant rounded-t relative group"><div class="absolute inset-x-0 bottom-0 bg-secondary h-[30%] rounded-t group-hover:h-[35%] transition-all"></div></div>
+<div class="w-6 bg-surface-variant rounded-t relative group"><div class="absolute inset-x-0 bottom-0 bg-secondary h-[85%] rounded-t group-hover:h-[90%] transition-all"></div></div>
+<div class="w-6 bg-surface-variant rounded-t relative group"><div class="absolute inset-x-0 bottom-0 bg-outline h-[20%] rounded-t"></div></div>
+</div>
+</div>
+</aside>
+</main>
+</body></html>

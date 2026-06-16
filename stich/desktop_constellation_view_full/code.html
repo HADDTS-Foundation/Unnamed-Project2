@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CTBP1 Atlas Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&amp;family=Inter:wght@400;500&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#00616d",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#d3e4fe",
+                    "error-container": "#ffdad6",
+                    "tertiary": "#010202",
+                    "on-surface-variant": "#44474f",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#dce9ff",
+                    "outline": "#75777f",
+                    "secondary-container": "#00e3fd",
+                    "surface-container": "#e5eeff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "outline-variant": "#c5c6d0",
+                    "on-tertiary-fixed-variant": "#434749",
+                    "on-surface": "#0b1c30",
+                    "on-secondary-fixed-variant": "#004f58",
+                    "secondary-fixed": "#9cf0ff",
+                    "on-tertiary-fixed": "#181c1e",
+                    "primary-fixed": "#d8e2ff",
+                    "surface-container-low": "#eff4ff",
+                    "inverse-primary": "#b1c6f9",
+                    "primary-fixed-dim": "#b1c6f9",
+                    "on-background": "#0b1c30",
+                    "on-secondary": "#ffffff",
+                    "surface": "#f8f9ff",
+                    "surface-tint": "#495e8a",
+                    "background": "#f8f9ff",
+                    "secondary-fixed-dim": "#00daf3",
+                    "surface-dim": "#cbdbf5",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#001a42",
+                    "tertiary-fixed-dim": "#c4c7c9",
+                    "inverse-surface": "#213145",
+                    "secondary": "#006875",
+                    "on-tertiary-container": "#818587",
+                    "surface-container-highest": "#d3e4fe",
+                    "tertiary-container": "#191d1f",
+                    "on-tertiary": "#ffffff",
+                    "on-primary-container": "#7084b3",
+                    "on-error": "#ffffff",
+                    "surface-bright": "#f8f9ff",
+                    "on-secondary-fixed": "#001f24",
+                    "primary-container": "#001b44",
+                    "primary": "#00020a",
+                    "on-primary-fixed-variant": "#314671",
+                    "tertiary-fixed": "#e0e3e5",
+                    "surface-container-lowest": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "data-row-height": "32px",
+                    "stack-gap": "12px",
+                    "unit": "4px",
+                    "container-padding": "24px",
+                    "grid-gutter": "16px"
+            },
+            "fontFamily": {
+                    "body-md": [
+                            "Inter"
+                    ],
+                    "body-sm": [
+                            "Inter"
+                    ],
+                    "headline-sm": [
+                            "Hanken Grotesk"
+                    ],
+                    "data-mono": [
+                            "JetBrains Mono"
+                    ],
+                    "label-caps": [
+                            "Hanken Grotesk"
+                    ],
+                    "headline-md": [
+                            "Hanken Grotesk"
+                    ],
+                    "display-lg": [
+                            "Hanken Grotesk"
+                    ]
+            },
+            "fontSize": {
+                    "body-md": [
+                            "14px",
+                            {
+                                    "lineHeight": "22px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "body-sm": [
+                            "12px",
+                            {
+                                    "lineHeight": "18px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-sm": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "data-mono": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "label-caps": [
+                            "11px",
+                            {
+                                    "lineHeight": "16px",
+                                    "letterSpacing": "0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "headline-md": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "display-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "letterSpacing": "-0.02em",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+          font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar (Shared Component JSON) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-container-padding h-14 bg-surface dark:bg-surface-container-high border-b border-outline-variant dark:border-outline">
+<div class="flex items-center gap-4">
+<span class="font-headline-md text-headline-md font-bold text-on-surface dark:text-inverse-on-surface">CTBP1 Atlas</span>
+<div class="hidden md:flex gap-2">
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant font-data-mono text-data-mono rounded">ENSG00000159733</span>
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant font-data-mono text-data-mono rounded">Entrez: 1487</span>
+<span class="px-2 py-1 bg-surface-variant text-on-surface-variant font-data-mono text-data-mono rounded">UniProt: Q13363</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden md:flex gap-4">
+<a class="text-secondary font-bold border-b-2 border-secondary pb-1 font-label-caps text-label-caps opacity-80 transition-all duration-150" href="#">Provenance</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors font-label-caps text-label-caps pb-1" href="#">Documentation</a>
+<a class="text-on-surface-variant dark:text-outline-variant hover:bg-surface-container dark:hover:bg-inverse-surface transition-colors font-label-caps text-label-caps pb-1" href="#">Methods</a>
+</nav>
+<div class="flex items-center gap-2">
+<button class="bg-primary text-on-primary font-label-caps text-label-caps px-4 py-1.5 rounded hover:opacity-90">Feedback</button>
+<button class="border border-secondary text-secondary font-label-caps text-label-caps px-4 py-1.5 rounded hover:bg-surface-variant">Export</button>
+<button class="text-on-surface-variant p-1"><span class="material-symbols-outlined">account_circle</span></button>
+<button class="text-on-surface-variant p-1"><span class="material-symbols-outlined">settings</span></button>
+<button class="text-on-surface-variant p-1"><span class="material-symbols-outlined">help</span></button>
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-14 h-screen">
+<!-- Left SideNavBar (Shared Component JSON) -->
+<aside class="fixed left-0 top-14 w-[280px] h-[calc(100vh-56px)] flex flex-col p-4 bg-surface-container-low dark:bg-surface-container-lowest border-r border-outline-variant dark:border-outline">
+<div class="mb-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary rounded flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">Disease Lenses</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Gene Atlas Explorer</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 p-2 bg-secondary-container dark:bg-secondary text-on-secondary-container dark:text-on-secondary font-bold rounded-lg scale-95 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined">biotech</span>
+<span class="font-label-caps text-label-caps">Lenses</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg" href="#">
+<span class="material-symbols-outlined">balance</span>
+<span class="font-label-caps text-label-caps">Weights</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg" href="#">
+<span class="material-symbols-outlined">filter_list</span>
+<span class="font-label-caps text-label-caps">Filters</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg" href="#">
+<span class="material-symbols-outlined">settings_input_component</span>
+<span class="font-label-caps text-label-caps">Controls</span>
+</a>
+<a class="flex items-center gap-3 p-2 text-on-surface-variant dark:text-outline-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-inverse-surface rounded-lg" href="#">
+<span class="material-symbols-outlined">layers</span>
+<span class="font-label-caps text-label-caps">Layers</span>
+</a>
+</nav>
+<div class="mt-auto pt-4 border-t border-outline-variant">
+<button class="w-full text-center text-secondary font-label-caps text-label-caps py-2 border border-secondary rounded mb-4 hover:bg-surface-variant">Reset Filters</button>
+<div class="flex justify-between">
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span> Help
+                    </a>
+<a class="flex items-center gap-2 text-on-surface-variant hover:text-on-surface font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Status
+                    </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 ml-[280px] mr-[320px] bg-background relative flex flex-col">
+<!-- Center Controls -->
+<div class="p-4 border-b border-outline-variant bg-surface flex justify-between items-center">
+<div class="flex gap-4">
+<button class="font-label-caps text-label-caps text-secondary font-bold border-b-2 border-secondary pb-1">Constellation</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant pb-1">Network</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant pb-1">Table</button>
+<button class="font-label-caps text-label-caps text-on-surface-variant pb-1">Findings</button>
+</div>
+<div class="flex gap-2">
+<button class="p-1 border border-outline-variant rounded text-on-surface-variant bg-surface"><span class="material-symbols-outlined text-[18px]">zoom_in</span></button>
+<button class="p-1 border border-outline-variant rounded text-on-surface-variant bg-surface"><span class="material-symbols-outlined text-[18px]">zoom_out</span></button>
+</div>
+</div>
+<!-- Visualization Canvas -->
+<div class="flex-1 relative overflow-hidden bg-white">
+<!-- Placeholder for central visualization -->
+<div class="absolute inset-0 flex items-center justify-center text-outline opacity-20">
+<span class="material-symbols-outlined text-9xl">hub</span>
+</div>
+<!-- Simulated network nodes -->
+<div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-primary-fixed rounded-full flex items-center justify-center border-4 border-primary z-10">
+<span class="font-headline-md text-headline-md font-bold text-on-primary-container">CTBP1</span>
+</div>
+<div class="absolute top-[30%] left-[35%] w-16 h-16 bg-surface-variant rounded-full flex items-center justify-center border border-outline">
+<span class="font-label-caps text-label-caps text-on-surface">HDAC1</span>
+</div>
+<svg class="absolute top-0 left-0 w-full h-full pointer-events-none stroke-outline-variant" style="z-index: 0;">
+<line stroke-width="1" x1="50%" x2="35%" y1="50%" y2="30%"></line>
+</svg>
+</div>
+<!-- Bottom Discoveries Bar -->
+<div class="h-48 border-t border-outline-variant bg-surface-container-low p-4 overflow-x-auto flex gap-4">
+<div class="min-w-[240px] bg-white border border-outline-variant rounded p-3 flex flex-col border-t-4 border-t-secondary">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">HDAC1</span>
+<span class="material-symbols-outlined text-outline text-[16px]">bookmark_border</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-2">Histone deacetylase 1. Component of the histone deacetylase complex.</p>
+<div class="mt-auto flex justify-between items-center text-on-surface-variant">
+<span class="font-data-mono text-data-mono text-[10px]">Score: 0.94</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</div>
+</div>
+<div class="min-w-[240px] bg-white border border-outline-variant rounded p-3 flex flex-col border-t-4 border-t-[#0ea5e9]">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">TLE2</span>
+<span class="material-symbols-outlined text-outline text-[16px]">bookmark_border</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-2">Transducin-like enhancer protein 2. Transcriptional corepressor.</p>
+<div class="mt-auto flex justify-between items-center text-on-surface-variant">
+<span class="font-data-mono text-data-mono text-[10px]">Score: 0.88</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</div>
+</div>
+<div class="min-w-[240px] bg-white border border-outline-variant rounded p-3 flex flex-col border-t-4 border-t-[#f59e0b]">
+<div class="flex justify-between items-start mb-2">
+<span class="font-headline-sm text-headline-sm font-bold text-on-surface">HNF4A</span>
+<span class="material-symbols-outlined text-outline text-[16px]">bookmark_border</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 mb-2">Hepatocyte nuclear factor 4 alpha. Nuclear receptor transcription factor.</p>
+<div class="mt-auto flex justify-between items-center text-on-surface-variant">
+<span class="font-data-mono text-data-mono text-[10px]">Score: 0.81</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Right SideNavBar (Shared Component JSON) -->
+<aside class="fixed right-0 top-14 w-[320px] h-[calc(100vh-56px)] flex flex-col p-4 bg-surface-container-low dark:bg-surface-container-lowest border-l border-outline-variant dark:border-outline">
+<div class="mb-6 flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-variant rounded flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">dns</span>
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-on-surface dark:text-on-surface">Dossier</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Selected Entity Data</p>
+</div>
+</div>
+<nav class="flex gap-2 mb-6 border-b border-outline-variant pb-2">
+<a class="text-secondary border-b-2 border-secondary font-bold font-label-caps text-label-caps pb-1 opacity-90 transition-opacity" href="#">Overview</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-caps text-label-caps pb-1 hover:text-on-surface" href="#">Evidence</a>
+<a class="text-on-surface-variant dark:text-outline-variant font-label-caps text-label-caps pb-1 hover:text-on-surface" href="#">Literature</a>
+</nav>
+<div class="flex-1 overflow-y-auto pr-2 space-y-6">
+<!-- Data Blocks -->
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">NCBI/RefSeq Summary</h3>
+<p class="font-body-sm text-body-sm text-on-surface leading-relaxed">
+                        This gene encodes a protein that binds to the C-terminus of adenovirus E1A proteins. This phosphoprotein is a transcriptional repressor and may also play a role during cellular proliferation.
+                    </p>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">UniProt Function</h3>
+<div class="bg-white p-3 border border-outline-variant rounded">
+<ul class="font-body-sm text-body-sm text-on-surface space-y-2 list-disc pl-4">
+<li>Corepressor targeting diverse transcription regulators.</li>
+<li>Functions in brown adipose tissue (BAT) differentiation.</li>
+<li>NADH-dependent dehydrogenase activity.</li>
+</ul>
+</div>
+</div>
+<div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant mb-2">Field Exposure</h3>
+<div class="grid grid-cols-2 gap-2">
+<div class="bg-surface-variant p-2 rounded text-center">
+<span class="block font-headline-md text-headline-md font-bold text-on-surface">142</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Interactions</span>
+</div>
+<div class="bg-surface-variant p-2 rounded text-center">
+<span class="block font-headline-md text-headline-md font-bold text-on-surface">89</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">Pathways</span>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</body></html>
