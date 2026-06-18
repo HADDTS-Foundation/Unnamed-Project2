@@ -205,12 +205,6 @@
     var lim = $('displayLimit');
     lim.max = analysis.length; lim.value = analysis.length; state.limit = analysis.length; $('limV').textContent = analysis.length;   // scale to the actual neighborhood
     lim.addEventListener('input', function () { state.limit = parseInt(lim.value, 10); $('limV').textContent = state.limit; renderActiveView(); });
-    $('layoutToggle').addEventListener('click', function (e) {
-      var b = e.target.closest('button[data-layout]'); if (!b) return;
-      state.layout = b.getAttribute('data-layout');
-      Array.prototype.forEach.call($('layoutToggle').children, function (c) { c.setAttribute('aria-pressed', c === b ? 'true' : 'false'); });
-      if (state.view === 'constellation') drawConstellation();
-    });
     var sel = $('traceSel');
     analysis.slice().sort(function (a, b) { return a.sym < b.sym ? -1 : 1; }).forEach(function (p) {
       var o = el('option'); o.value = p.sym; o.textContent = p.sym + ' — ' + p.name; sel.appendChild(o);
@@ -245,21 +239,22 @@
   // ======================================================================
   function setView(v) {
     state.view = v;
-    var _vn = $('viewName'); if (_vn) _vn.textContent = ({ constellation: 'Constellation', network: 'Network', table: 'Table', findings: 'Findings' })[v] || v;
+    var _vn = $('viewName'); if (_vn) _vn.textContent = ({ constellation: 'Constellation', table: 'Table', findings: 'Findings', discoveries: 'Discoveries' })[v] || v;
     document.body.classList.remove('panel-open');
     document.querySelectorAll('#viewTabs button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-view') === v ? 'true' : 'false'); });
-    ['constellation', 'network', 'table', 'findings'].forEach(function (k) { $('v-' + k).classList.toggle('on', k === v); });
+    ['constellation', 'table', 'findings', 'discoveries'].forEach(function (k) { $('v-' + k).classList.toggle('on', k === v); });
     renderActiveView();
   }
   function renderActiveView() {
     var v = state.view;
     if (v === 'constellation') { sizeCanvas($('cz')); drawConstellation(); }
-    else if (v === 'network') { sizeCanvas($('nz')); layoutNetwork(); drawNetwork(); }
     else if (v === 'table') renderTable();
     else if (v === 'findings') renderFindings();
+    else if (v === 'discoveries') renderDiscoveries();
     var allOn = ORDER.every(function (k) { return state.active[k]; });
     if (v === 'table') $('viewMeta').textContent = analysis.filter(lensOn).length + ' / ' + analysis.length + ' genes';
     else if (v === 'findings') $('viewMeta').textContent = ENGINE.findings(W).filter(function (r) { return allOn || state.active[r.area]; }).length + ' memberships';
+    else if (v === 'discoveries') $('viewMeta').textContent = $('discoveries').children.length + ' leads';
     else $('viewMeta').textContent = displayed().length + ' / ' + analysis.length + ' drawn';
   }
 
@@ -275,7 +270,7 @@
   // CONSTELLATION (canvas)
   // ======================================================================
   var DPR = Math.max(1, window.devicePixelRatio || 1);
-  var hot = { constellation: [], network: [] };
+  var hot = { constellation: [] };
   function sizeCanvas(cv) {
     var r = cv.parentElement.getBoundingClientRect();
     cv.width = Math.max(50, r.width) * DPR; cv.height = Math.max(50, r.height) * DPR;
@@ -298,27 +293,21 @@
     list.forEach(function (p) { var k = p.dominant || 'oncology'; if (sectors[k]) sectors[k].n++; });
 
     // sector backdrops + labels
-    if (state.layout === 'sector') {
-      SECTORS.forEach(function (k, i) {
-        var a0 = (i / SECTORS.length) * Math.PI * 2 - Math.PI / 2, a1 = ((i + 1) / SECTORS.length) * Math.PI * 2 - Math.PI / 2;
-        g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, R + 30, a0, a1); g.closePath();
-        g.fillStyle = hexA(THEMES[k].theme, 0.07); g.fill();
-        var am = (a0 + a1) / 2; g.fillStyle = hexA(THEMES[k].theme, 0.85);
-        g.font = '600 10px Inter'; g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.fillText(THEMES[k].label.toUpperCase().replace(/ \(.*\)/, ''), cx + Math.cos(am) * (R + 16), cy + Math.sin(am) * (R + 16));
-      });
-    }
+    SECTORS.forEach(function (k, i) {
+      var a0 = (i / SECTORS.length) * Math.PI * 2 - Math.PI / 2, a1 = ((i + 1) / SECTORS.length) * Math.PI * 2 - Math.PI / 2;
+      g.beginPath(); g.moveTo(cx, cy); g.arc(cx, cy, R + 30, a0, a1); g.closePath();
+      g.fillStyle = hexA(THEMES[k].theme, 0.07); g.fill();
+      var am = (a0 + a1) / 2; g.fillStyle = hexA(THEMES[k].theme, 0.85);
+      g.font = '600 10px Inter'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(THEMES[k].label.toUpperCase().replace(/ \(.*\)/, ''), cx + Math.cos(am) * (R + 16), cy + Math.sin(am) * (R + 16));
+    });
     // hub edges to displayed nodes (faint)
     var pos = {};
-    list.forEach(function (p, i) {
-      var ang, rad = R * (1 - 0.72 * (p.composite / 100));    // stronger → closer to hub
-      if (state.layout === 'sector') {
-        var s = sectors[p.dominant || 'oncology'];
-        var a0 = s.a0, span = (Math.PI * 2 / SECTORS.length);
-        ang = a0 + span * ((s.idx + 0.5) / Math.max(1, s.n)); s.idx++;
-      } else {
-        ang = (i / list.length) * Math.PI * 2 - Math.PI / 2;
-      }
+    list.forEach(function (p) {
+      var rad = R * (1 - 0.72 * (p.composite / 100));    // stronger → closer to hub
+      var s = sectors[p.dominant || 'oncology'];
+      var span = (Math.PI * 2 / SECTORS.length);
+      var ang = s.a0 + span * ((s.idx + 0.5) / Math.max(1, s.n)); s.idx++;
       pos[p.sym] = { x: cx + Math.cos(ang) * rad, y: cy + Math.sin(ang) * rad, p: p };
     });
     g.lineWidth = 1;
@@ -360,59 +349,6 @@
   function hexA(hex, a) {
     hex = (hex || '#888').replace('#', ''); if (hex.length === 3) hex = hex.split('').map(function (c) { return c + c; }).join('');
     var n = parseInt(hex, 16); return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
-  }
-
-  // ======================================================================
-  // NETWORK (canvas, lightweight force layout)
-  // ======================================================================
-  var netPos = {}, netReady = false;
-  function layoutNetwork() {
-    var list = displayed(); var n = list.length;
-    var cv = $('nz'), Wd = cv.width / DPR, Ht = cv.height / DPR;
-    var idx = {}; list.forEach(function (p, i) { idx[p.sym] = i; });
-    var P = list.map(function (p, i) {
-      var a = (i / n) * Math.PI * 2; return { sym: p.sym, x: Wd / 2 + Math.cos(a) * 160 + (i % 7 - 3) * 6, y: Ht / 2 + Math.sin(a) * 160 + (i % 5 - 2) * 6, vx: 0, vy: 0, p: p };
-    });
-    var pmap = {}; P.forEach(function (q) { pmap[q.sym] = q; });
-    var edges = DATA.edges.filter(function (e) { return pmap[e.a] && pmap[e.b]; });
-    for (var it = 0; it < 220; it++) {
-      var k = 0.0009 * (1 - it / 260);
-      for (var i = 0; i < P.length; i++) {
-        var a = P[i];
-        for (var j = i + 1; j < P.length; j++) {
-          var b = P[j], dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy + 0.01, d = Math.sqrt(d2);
-          var f = 520 / d2; var ux = dx / d, uy = dy / d; a.vx += ux * f; a.vy += uy * f; b.vx -= ux * f; b.vy -= uy * f;
-        }
-        // gravity to centre
-        a.vx += (Wd / 2 - a.x) * 0.0016; a.vy += (Ht / 2 - a.y) * 0.0016;
-      }
-      edges.forEach(function (e) {
-        var a = pmap[e.a], b = pmap[e.b], dx = b.x - a.x, dy = b.y - a.y, d = Math.sqrt(dx * dx + dy * dy) + 0.01;
-        var target = 60 + (1 - e.s) * 80, f = (d - target) * 0.01 * e.s; var ux = dx / d, uy = dy / d;
-        a.vx += ux * f; a.vy += uy * f; b.vx -= ux * f; b.vy -= uy * f;
-      });
-      P.forEach(function (q) { q.x += Math.max(-6, Math.min(6, q.vx)); q.y += Math.max(-6, Math.min(6, q.vy)); q.vx *= 0.86; q.vy *= 0.86; q.x = Math.max(20, Math.min(Wd - 20, q.x)); q.y = Math.max(20, Math.min(Ht - 20, q.y)); });
-    }
-    netPos = pmap; netReady = true;
-  }
-  function drawNetwork() {
-    if (!netReady) layoutNetwork();
-    var cv = $('nz'), g = cv.getContext('2d'); g.setTransform(DPR, 0, 0, DPR, 0, 0);
-    var Wd = cv.width / DPR, Ht = cv.height / DPR; g.clearRect(0, 0, Wd, Ht);
-    hot.network = [];
-    var edges = DATA.edges.filter(function (e) { return netPos[e.a] && netPos[e.b]; });
-    edges.forEach(function (e) { var a = netPos[e.a], b = netPos[e.b]; g.strokeStyle = hexA('#001b44', 0.05 + e.s * 0.40); g.lineWidth = 0.4 + e.s * 1.4; g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); });
-    Object.keys(netPos).forEach(function (sym) {
-      var q = netPos[sym], p = q.p, r = nodeRadius(p), col = areaSolid(p.dominant);
-      if (p.themes.aging !== undefined) {   // aging overlay (gold halo), consistent with the constellation
-        var ha = g.createRadialGradient(q.x, q.y, r * 0.5, q.x, q.y, r + 10);
-        ha.addColorStop(0, hexA('#ca8a04', 0.5)); ha.addColorStop(1, hexA('#ca8a04', 0));
-        g.beginPath(); g.arc(q.x, q.y, r + 10, 0, 7); g.fillStyle = ha; g.fill();
-      }
-      g.beginPath(); g.arc(q.x, q.y, r, 0, 7); g.fillStyle = col; g.fill();
-      if (state.sel === sym) { g.lineWidth = 2; g.strokeStyle = '#0b1c30'; g.stroke(); }
-      hot.network.push({ sym: sym, x: q.x, y: q.y, r: r + 3 });
-    });
   }
 
   // canvas interaction (hover tooltip + click select)
@@ -521,7 +457,7 @@
   // RIGHT DRAWER — three modes
   // ======================================================================
   function openDrawerMobile() { try { if (window.matchMedia && window.matchMedia('(max-width:1023px)').matches) document.body.classList.add('drawer-open'); } catch (e) {} }
-  function select(sym) { state.sel = sym; state.lens = null; renderDrawer(); if (state.view === 'table') renderTable(); if (state.view === 'constellation') drawConstellation(); if (state.view === 'network') drawNetwork(); openDrawerMobile(); }
+  function select(sym) { state.sel = sym; state.lens = null; renderDrawer(); if (state.view === 'table') renderTable(); if (state.view === 'constellation') drawConstellation(); openDrawerMobile(); }
   function openLens(key) { state.lens = key; state.sel = null; renderDrawer(); openDrawerMobile(); }
   function refreshDrawer() { renderDrawer(); }
   function renderDrawer() {
@@ -870,11 +806,11 @@
   function boot() {
     renderChips(); renderLenses(); wireWeights(); wireHeader(); renderInsight(); renderDiscoveries();
     document.querySelectorAll('#viewTabs button').forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view')); }); });
-    wireCanvas($('cz'), 'constellation'); wireCanvas($('nz'), 'network');
+    wireCanvas($('cz'), 'constellation');
     wireGlossary(document);
     renderDrawer();                       // hub dossier by default
     setView('constellation');
-    window.addEventListener('resize', debounce(function () { netReady = false; renderActiveView(); }, 180));
+    window.addEventListener('resize', debounce(function () { renderActiveView(); }, 180));
     var intro = $('intro');
     if (/[?&]noboot\b/.test(location.search)) { intro.parentNode && intro.parentNode.removeChild(intro); }
     else setTimeout(function () { intro.classList.add('gone'); setTimeout(function () { intro.parentNode && intro.parentNode.removeChild(intro); }, 600); }, 1150);
@@ -885,7 +821,7 @@
 
   function renderDiscoveries() {
     var box = $('discoveries'); if (!box) return; box.innerHTML = '';
-    ENGINE.discoveries(W, 12).forEach(function (d) {
+    ENGINE.discoveries(W, 24).forEach(function (d) {
       var c = el('div', 'card'); c.style.borderTopColor = d.theme || 'var(--primary)';
       c.innerHTML = '<div class="kind">' + esc(d.kind.replace('area:', '').replace(/^\w/, function (m) { return m.toUpperCase(); })) + '</div><div class="sym" style="color:' + (d.theme || 'var(--on-surface)') + '">' + esc(d.sym) + '</div><div class="why">' + esc(d.reason) + '</div>';
       c.addEventListener('click', function () { select(d.sym); setView('constellation'); });

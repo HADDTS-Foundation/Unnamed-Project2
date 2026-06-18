@@ -139,6 +139,8 @@ a.btn,a.btn:hover{text-decoration:none;}
 .insight .srcline a:hover{color:var(--on-surface);text-decoration:none;border-color:var(--secondary);}
 .insight .ibx{flex:none;width:24px;height:24px;border-radius:var(--r);color:var(--on-surface-variant);font-size:12px;line-height:1;border:1px solid transparent;}
 .insight .ibx:hover{background:var(--sc);border-color:var(--outline-variant);color:var(--on-surface);}
+/* meta cluster — How-was-this-built / Export / Built-date now live in this closable strip (desktop only) */
+.insight .imeta{display:flex;align-items:center;gap:var(--s2);flex:none;align-self:center;flex-wrap:wrap;justify-content:flex-end;}
 
 /* body */
 .body{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;padding-bottom:var(--navh);}
@@ -356,12 +358,11 @@ body.drawer-open .drawer{transform:none;}
   padding:11px;max-height:210px;overflow:auto;white-space:pre-wrap;word-break:break-word;
 }
 
-/* discoveries */
-.disc{flex:none;border-top:1px solid var(--outline-variant);background:var(--sc-low);}
-.disc-head{display:flex;align-items:center;gap:9px;padding:10px var(--s4) 7px;}
+/* discoveries — now a full view (was a bottom strip) */
+.disc-head{display:flex;align-items:center;gap:9px;padding:12px var(--s4) 9px;}
 .disc-head .label-caps{color:var(--on-surface);}
-.disc-scroll{display:flex;gap:var(--gutter);overflow-x:auto;padding:0 var(--s4) var(--s4);}
-.card{flex:0 0 252px;background:var(--sc-lowest);
+.disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:var(--gutter);padding:0 var(--s4) var(--s6);align-content:start;}
+.card{background:var(--sc-lowest);
   border:1px solid var(--outline-variant);border-top:4px solid var(--primary);border-radius:var(--r-lg);
   padding:13px 14px;cursor:pointer;transition:.14s transform,.14s border-color,.14s box-shadow;}
 .card:hover{transform:translateY(-2px);box-shadow:var(--shadow);}
@@ -398,11 +399,10 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
 
 .empty{display:flex;align-items:center;justify-content:center;height:100%;min-height:120px;color:var(--on-surface-variant);font-size:12.5px;}
 
-/* mobile: tighten the header — icon-only actions; snapshot date stays in the insight bar */
+/* mobile: the closable meta/provenance strip (How-built · Export · Built-date · sources) is a
+   desktop-only affordance — it is never opened on mobile (BUILD-PROMPT §7) */
 @media(max-width:1023px){
-  header.topbar .btn .lbl{display:none;}
-  header.topbar .btn.sm{padding:7px 9px;}
-  .chip.build{display:none;}
+  .insight{display:none!important;}
 }
 
 /* ===================================================================== */
@@ -411,7 +411,7 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
 @media(min-width:1024px){
   .iconbtn{display:none!important;}
   header.topbar{flex-wrap:nowrap;height:var(--navh);}
-  .body{display:grid;grid-template-columns:280px 1fr 320px;grid-template-rows:1fr auto;padding-bottom:0;flex:1;}
+  .body{display:grid;grid-template-columns:280px 1fr 320px;grid-template-rows:1fr;padding-bottom:0;flex:1;}
   .body>section{min-height:0;}
   .panel{position:static;transform:none;width:auto;box-shadow:none;z-index:auto;
     grid-row:1;overflow:auto;}
@@ -419,7 +419,6 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
   .center{grid-row:1;}
   .drawer{position:static;transform:none;width:auto;box-shadow:none;z-index:auto;grid-row:1;}
   .drawer-head .dclose{display:none;}
-  .disc{grid-column:1/-1;grid-row:2;}
   .backdrop{display:none;}
   /* view tabs back to a top text-tab strip */
   .tabs{position:static;height:auto;border-top:none;background:transparent;gap:var(--s4);padding:0;}
@@ -447,14 +446,11 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
       <img class="logo" src="logos/logo-vert-colored.svg" alt="HADDTS Foundation" onerror="this.style.display='none'">
     </a>
     <div class="spacer"></div>
-    <span class="chip build" id="builtDate"></span>
-    <button class="btn ghost sm" id="btnExport" title="Copy the full sourced AI context for every gene + the hub"><span class="k">⧉</span> <span class="lbl">Export</span></button>
-    <a class="btn primary sm" id="btnHowBuilt" href="BUILD-PROMPT.md" target="_blank" rel="noopener"><span class="k">⚙</span> <span class="lbl">How was this built?</span></a>
     <button class="iconbtn dossier" id="btnDossier" aria-label="Open dossier" title="Dossier">▤</button>
   </header>
 
   <!-- insight bar -->
-  <div class="insight" id="insightBar"><span class="dot"></span><div class="ibody"><div class="chips" id="geneChips"></div><div class="srcline" id="insightSrc">Loading…</div></div><button class="ibx" id="btnInsightClose" title="Dismiss this banner" aria-label="Dismiss">✕</button></div>
+  <div class="insight" id="insightBar"><span class="dot"></span><div class="ibody"><div class="chips" id="geneChips"></div><div class="srcline" id="insightSrc">Loading…</div></div><div class="imeta"><span class="chip build" id="builtDate"></span><a class="btn ghost sm" id="btnHowBuilt" href="BUILD-PROMPT.md" target="_blank" rel="noopener"><span class="k">⚙</span> How was this built?</a><button class="btn primary sm" id="btnExport" title="Copy the entire sourced CTBP1 AI context — hub + all 10 fields + every interactor — about 500,000 tokens, ready to paste into an LLM"><span class="k">⧉</span> Copy full CTBP1 context · ~500k tokens</button></div><button class="ibx" id="btnInsightClose" title="Dismiss this banner" aria-label="Dismiss">✕</button></div>
 
   <!-- body -->
   <div class="body">
@@ -487,15 +483,6 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
       </div>
 
       <div class="group">
-        <div class="label-caps">Layout</div>
-        <div class="seg full" id="layoutToggle">
-          <button data-layout="sector" aria-pressed="true">Sectors</button>
-          <button data-layout="radial" aria-pressed="false">Radial</button>
-        </div>
-        <div class="note">Constellation placement: by dominant disease-area sector, or purely by connection strength.</div>
-      </div>
-
-      <div class="group">
         <div class="label-caps">Trace connection <span class="info" data-tip="tip-trace">i</span></div>
         <select id="traceSel"><option value="">— pick an interactor —</option></select>
         <div class="note" id="traceOut">Every profiled gene is a direct STRING neighbour of CTBP1.</div>
@@ -514,9 +501,9 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
         <div class="viewmeta" id="viewMeta"></div>
         <div class="tabs" id="viewTabs">
           <button data-view="constellation" aria-pressed="true"><span class="ic">✦</span> Constellation</button>
-          <button data-view="network" aria-pressed="false"><span class="ic">⬡</span> Network</button>
           <button data-view="table" aria-pressed="false"><span class="ic">▦</span> Table</button>
           <button data-view="findings" aria-pressed="false"><span class="ic">≣</span> Findings</button>
+          <button data-view="discoveries" aria-pressed="false"><span class="ic">✧</span> Discoveries</button>
         </div>
       </div>
       <div class="stage">
@@ -524,13 +511,14 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
           <div class="legend" id="czLegend"></div>
           <div class="hint">click a node · drag weights · gold halo = aging-linked</div>
         </div>
-        <div class="view" id="v-network"><canvas id="nz"></canvas>
-          <div class="hint">force layout · functional modules · click a node</div>
-        </div>
         <div class="view scroll" id="v-table"><table id="tbl"><thead></thead><tbody></tbody></table></div>
         <div class="view scroll" id="v-findings">
           <div class="findbar" id="findingsFilter"></div>
           <div id="findingsWrap"></div>
+        </div>
+        <div class="view scroll" id="v-discoveries">
+          <div class="disc-head"><div class="label-caps">Discoveries</div><span class="muted" style="font-size:11px">blended, de-duplicated leads · click to focus</span></div>
+          <div class="disc-grid" id="discoveries"></div>
         </div>
       </div>
     </section>
@@ -544,12 +532,6 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
       </div>
       <div class="dwrap" id="drawer"></div>
     </section>
-
-    <!-- discoveries -->
-    <div class="disc">
-      <div class="disc-head"><div class="label-caps">Discoveries</div><span class="muted" style="font-size:11px">blended, de-duplicated leads · click to focus</span></div>
-      <div class="disc-scroll" id="discoveries"></div>
-    </div>
   </div>
 </div>
 

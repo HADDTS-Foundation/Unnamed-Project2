@@ -194,7 +194,7 @@ Adding/removing an `ot` field is just a `THEMES` entry (EFO key + threshold) —
 for visibility on the light DESIGN.md surface (saturated Tailwind-scale tones, spaced for mutual
 distinctness on white). Define each in `index.html :root` as `--area-<key>` (e.g.
 `--area-oncology:#e11d48`). Apply per DESIGN.md's component notes:
-- **Constellation / Network node fill & angular wedge** (the 5 `sector` fields only) = the solid `--area-<key>`.
+- **Constellation node fill & angular wedge** (the 5 `sector` fields only) = the solid `--area-<key>`.
 - **Gene-category chips & flags** = a solid dot in `--area-<key>` + a pale tint background
   `color-mix(in srgb, var(--area-<key>) 12%, var(--surface-container-lowest))` + a `color-mix(… 30% …)`
   hairline + **dark text** (`--on-surface` `#0b1c30`) — never coloured text (per DESIGN.md chip spec).
@@ -245,28 +245,43 @@ themeSummary, themeExposure, synthesis, findings, …`.
 The **header + insight bar** form a *provenance-first strip* — *what* the data is, *where* it comes
 from (every source linked), and *how it was built* — shown above the views, before any number.
 
-- **Header**: the brand lock-up — the **CTBP1 Atlas** wordmark **first**, then a **smaller** HADDTS
-  Foundation logo as the trailing secondary mark (title leads; the logo follows at a reduced size,
-  separated by a hairline divider — never the logo first) — followed by a **build-date chip** (the snapshot date), and **⚙ How was this
-  built?** — a link to this `BUILD-PROMPT.md` on GitHub. (Methods/glossary live in the build prompt
-  now; weights re-analyse live on slider change, so there is no separate Re-analyze/Live-data/How-to-
-  read button. Per-block AI copy stays on every drawer's `<pre>`; the copy-all hook remains for
-  automation but is not a header button.)
-- **Insight bar**: leads with the gene **ID chips** (Ensembl / Entrez / UniProt / STRING / OMIM + the
-  gene·edge count, each linked to its live record — the IDs live **here, in the insight bar, not in the
-  header**), shown directly above a one-line **"what it profiles + sources" caption** (top‑250 STRING
-  interactors; STRING / Open Targets / Europe PMC / IntAct / ClinVar / HPO / Reactome / GenAge, snapshot
-  date, each linked), the whole banner **dismissable** via an ✕ close button. (No synthesis sentence in
-  the bar — `synthesis()` still feeds the hub AI block.)
+- **Header**: kept deliberately minimal — the controls (☰) icon, the brand lock-up (the **CTBP1
+  Atlas** wordmark **first**, then a **smaller** HADDTS Foundation logo as the trailing secondary
+  mark, separated by a hairline divider — never the logo first), and the dossier (▤) icon. The
+  build-date, Export, and "How was this built?" actions are **not** in the header — they live in the
+  closable insight strip below (see next bullet). (Methods/glossary live in the build prompt now;
+  weights re-analyse live on slider change, so there is no separate Re-analyze/Live-data/How-to-read
+  button. Per-block AI copy stays on every drawer's `<pre>`; the copy-all hook also backs the Export
+  action.)
+- **Insight bar (the closable meta/provenance strip)**: leads with the gene **ID chips** (Ensembl /
+  Entrez / UniProt / STRING / OMIM + the gene·edge count, each linked to its live record — the IDs
+  live **here, not in the header**), above a one-line **"what it profiles + sources" caption**
+  (top‑250 STRING interactors; STRING / Open Targets / Europe PMC / IntAct / ClinVar / HPO / Reactome
+  / GenAge, snapshot date, each linked). Its right edge carries the meta actions that used to sit in
+  the header — the **build-date chip**, **⚙ How was this built?** (a link to this `BUILD-PROMPT.md`),
+  and the **Export** button — and the whole strip is **dismissable** via an ✕ close button. (No
+  synthesis sentence in the bar — `synthesis()` still feeds the hub AI block.)
+  - **Export** copies the *entire* sourced AI context — the CTBP1 hub + all ten fields + every
+    interactor (the `copyAllContext()` / `aiForAll()` dump) — to the clipboard as plain text for
+    pasting into an LLM. Its label must make the **size explicit**: it is a large context of roughly
+    **~500,000 tokens** of CTBP1 gene intelligence (button reads e.g. *"⧉ Copy full CTBP1 context ·
+    ~500k tokens"*), so a user knows what they are about to paste before they do.
+  - **Desktop-only.** This closable strip is a **desktop affordance**: on viewports `< 1024px` it is
+    **never opened/shown at all** (`@media(max-width:1023px){ .insight{display:none} }`). The meta
+    actions (Export especially) and the source links are therefore desktop-only; mobile keeps the
+    header + views uncluttered.
 - **Left panel**: **Fields (lenses)** — one flat list of all ten fields (five sector fields, then
   aging / immunity / cardiovascular / hematologic / eye). **Click a field to focus it** (every view
   filters to just that field; click the focused lens again to reset; the Findings area-chips mirror
   this), **Evidence weighting**
   (3 sliders: physical / literature / network), **Display limit** (how many top interactors to
-  draw, its own section with a one-line note), **Layout** toggle, **Trace connection**.
-- **Center — four views**:
+  draw, its own section with a one-line note), **Trace connection**. (There is **no Layout toggle** —
+  the constellation has a single canonical **sector** layout; the former *Radial* option is dropped.)
+- **Center — four views** (Constellation · Table · Findings · Discoveries — there is **no Network
+  view**; the force-layout view was dropped from the project):
   1. **Constellation** — CTBP1 at centre; interactors placed by dominant area (angular sector +
-     colour) and connection strength (radius); pulse = strong area assoc. (No "druggable" indicator:
+     colour) and connection strength (radius); pulse = strong area assoc. Placement is **always by
+     sector** — there is no alternative radial layout. (No "druggable" indicator:
      Open Targets *tractability* measures whether a molecule could engage a protein, not whether one
      should — e.g. a tumour suppressor like p53 would be *restored*, not inhibited — and it flags
      ~half the neighbourhood, so it carries little signal. The full tractability data stays one click
@@ -277,11 +292,14 @@ from (every source linked), and *how it was built* — shown above the views, be
      placed as nodes in the gene map: CtBP1's curated ortholog-aware reading list (`gene.agingRefs`,
      incl. the landmark *C. elegans* `ctbp‑1` life-span paper, PMID 19164523) lives in the
      Aging/longevity lens dossier (§8), where literature belongs.
-  2. **Network** — force layout revealing functional modules.
-  3. **Table** — sortable evidence table.
-  4. **Findings** — every (gene × area) membership, filterable by area chip (the chips mirror the
+  2. **Table** — sortable evidence table.
+  3. **Findings** — every (gene × area) membership, filterable by area chip (the chips mirror the
      left-panel lens focus, and vice-versa), each row sourced
      (OT disease+score, or GenAge/LongevityMap for aging).
+  4. **Discoveries** — the blended, de-duplicated, diversity-capped lead feed (`discoveries(W)`) as a
+     **first-class view alongside Findings**, rendered as a responsive card grid; click a card to
+     focus that gene. (It used to be a strip pinned to the bottom of the layout — it is now its own
+     tab, not a bottom dock.)
 - **Right drawer** — three context-aware modes: gene dossier, disease-lens panel, CTBP1 hub
   dossier. A **disease-lens panel** shows the area's membership rule, its member genes ranked by
   strength, and — for the **Aging/longevity** lens only — the curated, ortholog-aware reading list
@@ -292,7 +310,7 @@ from (every source linked), and *how it was built* — shown above the views, be
   (Reactome), STRING connection, and "Open in databases" deep links.
 - **AI block** — every drawer + the hub dossier has a copy-to-clipboard `<pre>` dumping *all shown
   values + source URLs* as plain text, ready to paste into an LLM.
-- **Discoveries feed** — cards at the bottom, click to focus.
+- **Discoveries feed** — its own **view/tab** (a responsive card grid, not a bottom strip), click to focus.
 - **Tooltips** — ⓘ glossary tooltips must be **instant** (a custom body-level tooltip, NOT the
   native `title=` attribute, which has a ~0.5–1 s browser delay). Position above the icon, flip
   below near the top, clamp to the viewport, ~70 ms fade, also show on keyboard focus.
@@ -362,10 +380,11 @@ The design system is **not** specified inline here. It lives in the Google Stitc
   font families, rounding, spacing, elevation, and per-component styling (buttons, gene-category
   chips, data tables, inputs, discovery cards, sidebars). Implement these as CSS custom properties
   in `index.html :root` and follow its component notes.
-- **`stich/<view>/code.html` + `screen.png`** — the reference layout and composition for each of the
-  four views (constellation / network / table / findings, in mobile and `desktop_*_full` variants),
+- **`stich/<view>/code.html` + `screen.png`** — the reference layout and composition for the views
+  (constellation / table / findings / discoveries, in mobile and `desktop_*_full` variants),
   including the header/insight strip, the left panel, and the right dossier drawer. Match this
-  structure.
+  structure. (The Stitch export also contains a *network* reference, but the **Network view is dropped
+  from the build** — ignore it; likewise there is no Layout/Radial toggle.)
 - **`logos/`** — the HADDTS Foundation brand marks (navy + cyan); use the supplied lockups. In the
   header the **CTBP1 Atlas** wordmark comes **first** and the **compact** HADDTS Foundation lockup
   (`logo-vert-colored`, the stacked navy+cyan mark — not the wide one-line wordmark) follows at a
