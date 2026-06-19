@@ -767,41 +767,6 @@
     var hh = $('btnHubHome'); if (hh) hh.addEventListener('click', goHub);
     var bk = $('backdrop'); if (bk) bk.addEventListener('click', closeAll);
   }
-  function flash(btn) { var o = btn.innerHTML; btn.innerHTML = '<span class="k">↻</span> Re-analyzed'; setTimeout(function () { btn.innerHTML = o; }, 1100); }
-
-  function openMethods() {
-    var ov = el('div'); ov.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(7,11,22,.78);display:flex;align-items:center;justify-content:center;padding:32px';
-    var card = el('div'); card.style.cssText = 'max-width:760px;max-height:84vh;overflow:auto;background:var(--surface);border:1px solid var(--outline);border-radius:var(--r-lg);box-shadow:var(--shadow);padding:26px 30px';
-    card.innerHTML =
-      '<div style="display:flex;align-items:center"><h2 style="font-size:22px">How to read this</h2><button class="btn sm" style="margin-left:auto" id="mClose">Close ✕</button></div>' +
-      '<p class="muted" style="margin:14px 0;line-height:1.6">CTBP1 ATLAS profiles the top ' + META.neighborhood + ' STRING interactors of human CTBP1 and derives disease/biology connections through a transparent inference engine. Every number links to the live source that validates it; the engine treats every gene identically — no partner is special-cased.</p>' +
-      sectionHTML('The composite connection score', 'A weighted blend of three sub-scores. <b>Physical</b> = clamp(STRING experiments + 0.5·curated databases) — the combined score is deliberately excluded so text-mining can\'t inflate a pair into a fake physical interaction. <b>Literature</b> = log-scaled, synonym-aware CTBP1 co-mention (ambiguous/housekeeping symbols zeroed). <b>Network</b> = summed partner–partner STRING edge weight, hub excluded. Re-weight live with the sliders.') +
-      sectionHTML('Connection types', 'Core complex / Physical interactor / Literature-linked / Functional neighbour / Associated. These key off physical evidence (experiments + IntAct), never the curated-DB channel alone — a database-only pair is never called a physical complex member.') +
-      sectionHTML('Five disease areas + an aging overlay', '<b>Which</b> areas to show is an editorial choice; <b>which genes</b> belong is decided only by the data. The five <b>disease areas</b> are the constellation sectors: Oncology / Metabolic / CNS use Open Targets EFO therapeutic-area sums; Neurodegeneration / Neurodevelopment use OT disease-name matches. <b>Aging / longevity</b> is not a disease but an <b>overlay</b> (GenAge ∪ LongevityMap), shown as a gold halo on member genes — never its own sector. The test harness recomputes every membership straight from the raw data and asserts it equals the engine — a hand-placed gene would fail.') +
-      sectionHTML('Provenance', 'Co-mention counts are tiered (title / title+abstract / full text) and link to the exact Europe PMC query that produced them. ClinVar counts use NCBI\'s precise clinsig filters. The ⧉ Copy buttons dump every shown value with its source URL as plain text for an LLM.') +
-      sectionHTML('Sources', (META.sources || []).join(' · ') + '. Snapshot ' + META.date + '.');
-    ov.appendChild(card); document.body.appendChild(ov); wireGlossary(card);
-    function close() { document.body.removeChild(ov); }
-    ov.addEventListener('click', function (e) { if (e.target === ov) close(); });
-    $('mClose').addEventListener('click', close);
-  }
-  function sectionHTML(h, b) { return '<div style="margin-top:16px"><div class="label-caps" style="color:var(--primary);margin-bottom:5px">' + esc(h) + '</div><div class="muted" style="font-size:13px;line-height:1.6">' + b + '</div></div>'; }
-
-  function liveProbe() {
-    var btn = $('btnLive'), o = btn.innerHTML; btn.innerHTML = '<span class="k">◎</span> Probing…';
-    var done = 0, results = [];
-    function finish(label, ok) { results.push((ok ? '✓ ' : '✕ ') + label); if (++done === 2) { btn.innerHTML = o; toast('Live data probe:\n' + results.join('\n') + '\n\nThe bundled snapshot (' + META.date + ') stands regardless.'); } }
-    probe('https://string-db.org/api/json/version', function (ok) { finish('STRING v12 API', ok); });
-    probe('https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=CTBP1&format=json&pageSize=1', function (ok) { finish('Europe PMC API', ok); });
-  }
-  function probe(url, cb) {
-    var t = setTimeout(function () { cb(false); }, 6000); var fired = false;
-    fetch(url, { mode: 'cors' }).then(function (r) { if (fired) return; fired = true; clearTimeout(t); cb(r.ok); }).catch(function () { if (fired) return; fired = true; clearTimeout(t); cb(false); });
-  }
-  function toast(msg) {
-    var t = el('div'); t.style.cssText = 'position:fixed;right:24px;bottom:24px;z-index:9500;max-width:340px;white-space:pre-wrap;background:var(--surface);border:1px solid var(--outline);border-left:3px solid var(--primary);border-radius:var(--r);box-shadow:var(--shadow);padding:14px 16px;font-size:12px;line-height:1.5;color:var(--on-surface)';
-    t.textContent = msg; document.body.appendChild(t); setTimeout(function () { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 400); }, 6000);
-  }
 
   // ======================================================================
   // animation clock (constellation pulse)

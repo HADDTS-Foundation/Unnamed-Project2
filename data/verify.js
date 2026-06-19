@@ -243,7 +243,7 @@ check('Entrez present wherever phenotypes exist (HPO is keyed by NCBIGene)',
   NODES.every(n => (n.phenotypes || []).length === 0 || /^\d+$/.test(String(n.entrez || ''))));
 
 // meta sanity
-check('meta declares the 6 STRING channel legend keys (e,d,t,a,p,n,f)',
+check('meta declares the 7 STRING channel legend keys (e,d,t,a,p,n,f)',
   ['e', 'd', 't', 'a', 'p', 'n', 'f'].every(k => D.meta.channelLegend && D.meta.channelLegend[k]));
 check('node count matches meta.neighborhood and is a substantial neighborhood (>= 200)',
   NODES.length === D.meta.neighborhood && NODES.length >= 200, NODES.length + ' nodes vs meta.neighborhood ' + D.meta.neighborhood);
