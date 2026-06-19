@@ -28,10 +28,14 @@ Think "institutional modernist" bioinformatics console: dense, disciplined, auth
 2. **Everything is sourced — and provenance comes first.** Every count, score, flag, interaction,
    pathway, phenotype and paper must carry a click-through to the exact live query/record that
    validates it. No unsourced numbers. No invented claims. State values plainly; never editorialise
-   or round away precision. **Surface the provenance up-front, not buried:** the insight banner (top,
-   above the views) states exactly *what* the tool profiles and lists *every* data source as a link,
-   and the header's primary action is **"How was this built?"** (a link to this brief). A user should
-   see the sources and the method *before* trusting a number — not have to hunt for them.
+   or round away precision. **Keep the provenance never more than one click away, not buried:** every
+   shown value links directly to the live record that validates it, and a consolidated provenance strip
+   (top, above the views) gathers the gene IDs, *every* data source as a link, the snapshot/"Built"
+   date, the "How was this built?" methods link, and the Export — all in one place. That strip is
+   **collapsed by default** for a clean first paint but is **always one click away** via a persistent
+   header **ⓘ Sources** toggle (it is never permanently removable). The deliberate trade: a clean
+   initial view over forcing the sources in front of a first-time reader — acceptable only because the
+   strip is one obvious click away and every individual number still carries its own source link.
 3. **No gene is ever special-cased.** The engine receives only raw evidence and treats every gene
    identically. No partner symbol may appear in a scoring branch. The *only* gene-ish tokens
    allowed in the engine are: the subject hub `CTBP1`, a documented literature stop-list
@@ -242,34 +246,50 @@ themeSummary, themeExposure, synthesis, findings, …`.
 
 ## 7. The UI (`app.js` + `index.html`)
 
-The **header + insight bar** form a *provenance-first strip* — *what* the data is, *where* it comes
-from (every source linked), and *how it was built* — shown above the views, before any number.
+The **header + insight bar** form a *provenance strip* — *what* the data is, *where* it comes
+from (every source linked), and *how it was built* — sitting above the views and **one click away**
+via the header **ⓘ Sources** toggle (collapsed by default; see the Insight-bar bullet).
 
 - **Header**: kept deliberately minimal — the controls (☰) icon, the brand lock-up (the **CTBP1
   Atlas** wordmark **first**, then a **smaller** HADDTS Foundation logo as the trailing secondary
-  mark, separated by a hairline divider — never the logo first), and the dossier (▤) icon. The
-  build-date, Export, and "How was this built?" actions are **not** in the header — they live in the
-  closable insight strip below (see next bullet). (Methods/glossary live in the build prompt now;
+  mark, separated by a hairline divider — never the logo first), a **ⓘ Sources** toggle, and the
+  dossier (▤) icon. The build-date, Export, and "How was this built?" actions are **not** in the
+  header — they live in the closable insight strip below, which the **ⓘ Sources** button opens/closes
+  (the strip is **closed by default** — see next bullet). (Methods/glossary live in the build prompt now;
   weights re-analyse live on slider change, so there is no separate Re-analyze/Live-data/How-to-read
   button. Per-block AI copy stays on every drawer's `<pre>`; the copy-all hook also backs the Export
   action.)
-- **Insight bar (the closable meta/provenance strip)**: leads with the gene **ID chips** (Ensembl /
-  Entrez / UniProt / STRING / OMIM + the gene·edge count, each linked to its live record — the IDs
-  live **here, not in the header**), above a one-line **"what it profiles + sources" caption**
-  (top‑250 STRING interactors; STRING / Open Targets / Europe PMC / IntAct / ClinVar / HPO / Reactome
-  / GenAge, snapshot date, each linked). Its right edge carries the meta actions that used to sit in
-  the header — the **build-date chip**, **⚙ How was this built?** (a link to this `BUILD-PROMPT.md`),
-  and the **Export** button — and the whole strip is **dismissable** via an ✕ close button. (No
-  synthesis sentence in the bar — `synthesis()` still feeds the hub AI block.)
+- **Insight bar (the closable meta/provenance strip)**: a compact, link-first strip. Its first row is
+  the gene **IDs + dataset meta**, and below it a one-line **"what it profiles + sources" caption**.
+  - **First row — uniform `LABEL→value` pairs, NOT boxed pills and NOT a mix of styles.** Every item
+    in the row is the *same shape*: a small-caps muted field label followed by a value, items separated
+    by faint middots — no chip boxes, no buttons floating right, **no per-item icons** (icons on only
+    some items are what broke the rhythm). One typography for the whole row: **all values are mono, the
+    same size/weight**; **links are cyan, static values are dark** (the only intentional difference).
+    In order: the **ID pairs** (`Ensembl`, `Entrez`, `UniProt`, `STRING`, `OMIM` — each value links to
+    its live record; the IDs live **here, not in the header**), then the meta pairs that used to sit in
+    the header — `Built ‹date›` (static), `Genes ‹n›` and `Edges ‹m›` (static; split into two labelled
+    pairs rather than one "n genes · m edges" blob so the internal middot can't be mistaken for a
+    separator), `Method → How it was built` (links to this `BUILD-PROMPT.md`), and `Export → Copy AI
+    context (~500k)` (the copy-everything action). Same label+value treatment throughout so the row
+    reads as a single tidy provenance band.
+  - **Caption**: a bold **lead line** ("‹n› STRING interactors of human CTBP1 — the top-250 by combined
+    score…", snapshot date) above a labelled **Sources** line (STRING / Open Targets / Europe PMC /
+    IntAct / ClinVar / HPO / Reactome / GenAge, each linked, middot-separated).
+  - **Closed by default, toggleable.** The strip starts **collapsed** on load (class `hidden`); the
+    header **ⓘ Sources** button toggles it open/closed and reflects state via `aria-pressed`, and the
+    strip's own ✕ closes it. (It is a one-click reveal, not a one-way permanent dismiss — there must
+    always be a way to bring it back.) No persistence: it reopens collapsed on the next load. (No
+    synthesis sentence in the bar — `synthesis()` still feeds the hub AI block.)
   - **Export** copies the *entire* sourced AI context — the CTBP1 hub + all ten fields + every
     interactor (the `copyAllContext()` / `aiForAll()` dump) — to the clipboard as plain text for
-    pasting into an LLM. Its label must make the **size explicit**: it is a large context of roughly
-    **~500,000 tokens** of CTBP1 gene intelligence (button reads e.g. *"⧉ Copy full CTBP1 context ·
-    ~500k tokens"*), so a user knows what they are about to paste before they do.
+    pasting into an LLM. In the row it is the `Export → Copy AI context (~500k)` pair (cyan link, **no icon**,
+    for row uniformity); the **size is kept explicit** (~500,000 tokens) and the full "hub + all fields
+    + every interactor" explanation lives in its `title` tooltip.
   - **Desktop-only.** This closable strip is a **desktop affordance**: on viewports `< 1024px` it is
-    **never opened/shown at all** (`@media(max-width:1023px){ .insight{display:none} }`). The meta
-    actions (Export especially) and the source links are therefore desktop-only; mobile keeps the
-    header + views uncluttered.
+    **never opened/shown at all** (`@media(max-width:1023px){ .insight{display:none} }`), and the
+    header **ⓘ Sources** toggle is hidden there too. The meta actions (Export especially) and the
+    source links are therefore desktop-only; mobile keeps the header + views uncluttered.
 - **Left panel**: **Fields (lenses)** — one flat list of all ten fields (five sector fields, then
   aging / immunity / cardiovascular / hematologic / eye). **Click a field to focus it** (every view
   filters to just that field; click the focused lens again to reset; the Findings area-chips mirror
@@ -301,7 +321,11 @@ from (every source linked), and *how it was built* — shown above the views, be
      focus that gene. (It used to be a strip pinned to the bottom of the layout — it is now its own
      tab, not a bottom dock.)
 - **Right drawer** — three context-aware modes: gene dossier, disease-lens panel, CTBP1 hub
-  dossier. A **disease-lens panel** shows the area's membership rule, its member genes ranked by
+  dossier. The drawer opens on the **CTBP1 hub** dossier by default; selecting a gene (any view) or a
+  field-lens swaps the drawer to that dossier. Because the hub no longer shows automatically once you
+  drill in, the **drawer header carries a `⌂ CTBP1 hub` button** that appears **only when a gene/lens
+  dossier is open** and returns the drawer to the hub (clears the gene/lens selection) — so there is
+  always a one-click way back to the subject. A **disease-lens panel** shows the area's membership rule, its member genes ranked by
   strength, and — for the **Aging/longevity** lens only — the curated, ortholog-aware reading list
   (`gene.agingRefs`, §8) clearly labelled as such. A gene dossier shows: connection meters, STRING channel bars, IntAct, **Area memberships**
   (disease areas + aging, with provenance, area-coloured, no alarm icon), top disease associations, Literature
@@ -309,7 +333,13 @@ from (every source linked), and *how it was built* — shown above the views, be
   sub-heading over the paper list), Clinical variants (ClinVar), Clinical phenotypes (HPO), Pathways
   (Reactome), STRING connection, and "Open in databases" deep links.
 - **AI block** — every drawer + the hub dossier has a copy-to-clipboard `<pre>` dumping *all shown
-  values + source URLs* as plain text, ready to paste into an LLM.
+  values + source URLs* as plain text, ready to paste into an LLM. The **per-drawer copy buttons share
+  one recognisable identity** — the same **⧉ clipboard icon** + a short **"Copy"** label + a cyan
+  accent — so a user can spot them at a glance. The button is just **⧉ Copy** (its AI-block heading,
+  "AI context — ‹gene/lens/CTBP1›", already supplies the scope; the scope is repeated in the `title`
+  tooltip). The global counterpart is the insight-strip **Export** (`Copy AI context (~500k)`) — it copies
+  *everything* and still reads "Copy" in cyan, but **drops the icon** so it conforms to that strip's
+  uniform label→value row.
 - **Discoveries feed** — its own **view/tab** (a responsive card grid, not a bottom strip), click to focus.
 - **Tooltips** — ⓘ glossary tooltips must be **instant** (a custom body-level tooltip, NOT the
   native `title=` attribute, which has a ~0.5–1 s browser delay). Position above the icon, flip

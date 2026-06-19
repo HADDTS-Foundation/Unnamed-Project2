@@ -162,10 +162,16 @@
       ['STRING', (ids.string || '').split('.').pop(), 'https://string-db.org/network/' + enc(ids.string)]
     ];
     if (GENE.mim) chips.push(['OMIM', GENE.mim, URLS.omim(GENE.mim)]);
-    c.innerHTML = chips.map(function (x) {
-      return '<span class="chip">' + x[0] + ' <a href="' + x[2] + '" target="_blank" rel="noopener"><b>' + esc(x[1]) + '</b></a></span>';
-    }).join('') + '<span class="chip">' + META.nodeCount + ' genes · ' + META.edgeCount + ' edges</span>';
-    var bd = $('builtDate'); if (bd) bd.innerHTML = 'Built <b class="mono">' + esc(META.date) + '</b>';   // build/snapshot date (top right)
+    // every item is a uniform LABEL→value pair, middot-separated (no boxes, no icons)
+    function item(label, valueHTML) { return '<span class="ix"><span class="lab">' + label + '</span> ' + valueHTML + '</span>'; }
+    function link(href, text, attrs) { return '<a ' + (attrs || '') + ' href="' + href + '" target="_blank" rel="noopener">' + esc(text) + '</a>'; }
+    var frags = chips.map(function (x) { return item(x[0], link(x[2], x[1])); });
+    frags.push(item('Built', '<span class="v" id="builtDate">' + esc(META.date) + '</span>'));
+    frags.push(item('Genes', '<span class="v">' + META.nodeCount + '</span>'));
+    frags.push(item('Edges', '<span class="v">' + META.edgeCount + '</span>'));
+    frags.push(item('Method', link('BUILD-PROMPT.md', 'How it was built', 'id="btnHowBuilt"')));
+    frags.push(item('Export', '<button id="btnExport" title="Copy the entire sourced CTBP1 AI context — the CTBP1 hub + all 10 fields + every interactor — about 500,000 tokens, ready to paste into an LLM">Copy AI context (~500k)</button>'));
+    c.innerHTML = frags.join('<span class="sep">·</span>');
   }
 
   // ======================================================================
@@ -228,8 +234,11 @@
         ['Europe PMC', 'https://europepmc.org'], ['IntAct', 'https://www.ebi.ac.uk/intact'],
         ['ClinVar', 'https://www.ncbi.nlm.nih.gov/clinvar'], ['HPO', 'https://hpo.jax.org'],
         ['Reactome', 'https://reactome.org'], ['GenAge / LongevityMap', 'https://genomics.senescence.info']];
-      src.innerHTML = '<b style="color:var(--on-surface)">' + analysis.length + ' STRING interactors</b> of human CTBP1 (top-250 by combined score) — fully offline; every value links to its live source. Snapshot ' + esc(META.date) + '. Sources: ' +
-        SRC.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + esc(x[0]) + '</a>'; }).join(' · ') + '. <a href="BUILD-PROMPT.md" target="_blank" rel="noopener">How it was built ↗</a>';
+      src.innerHTML =
+        '<div class="lead"><b>' + analysis.length + ' STRING interactors</b> of human CTBP1 — the top-250 by combined score. Fully offline; every value links to its live source. Snapshot <b>' + esc(META.date) + '</b>.</div>' +
+        '<div class="srcs"><span class="lab">Sources</span>' +
+          SRC.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + esc(x[0]) + '</a>'; }).join('<span class="sep">·</span>') +
+        '</div>';
       src.setAttribute('data-filled', '1');
     }
   }
@@ -460,11 +469,14 @@
   function select(sym) { state.sel = sym; state.lens = null; renderDrawer(); if (state.view === 'table') renderTable(); if (state.view === 'constellation') drawConstellation(); openDrawerMobile(); }
   function openLens(key) { state.lens = key; state.sel = null; renderDrawer(); openDrawerMobile(); }
   function refreshDrawer() { renderDrawer(); }
+  // return the drawer to the CTBP1 hub dossier (clears any gene/lens selection)
+  function goHub() { state.sel = null; state.lens = null; renderDrawer(); if (state.view === 'table') renderTable(); if (state.view === 'constellation') drawConstellation(); }
   function renderDrawer() {
     var d = $('drawer');
     if (state.sel && bySym[state.sel]) d.innerHTML = '', d.appendChild(geneDossier(bySym[state.sel]));
     else if (state.lens) d.innerHTML = '', d.appendChild(lensDossier(state.lens));
     else d.innerHTML = '', d.appendChild(hubDossier());
+    var home = $('btnHubHome'); if (home) home.style.display = (state.sel || state.lens) ? 'inline-flex' : 'none';   // "back to hub" only when off-hub
     wireGlossary(d);
     d.querySelectorAll('button.copyai').forEach(function (b) { b.addEventListener('click', function () { copyText(b.closest('.aiblock').querySelector('pre').textContent, b); }); });
     d.querySelectorAll('a.gsel').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); var lens = a.getAttribute('data-lens'); if (lens) openLens(lens); else select(a.getAttribute('data-sym')); }); });
@@ -595,7 +607,7 @@
     ].filter(Boolean).map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + ' ↗</a>'; }).join('');
     box.appendChild(sec('Open in databases', null, dl));
 
-    box.appendChild(aiBlock('AI context — ' + p.sym, aiForGene(p)));
+    box.appendChild(aiBlock('AI context — ' + p.sym, aiForGene(p), p.sym));
     return box;
   }
   function litRow(tier, n, query) { return '<div class="litrow"><span class="tier">' + tier + '</span><span class="n">' + n + '</span><a href="' + URLS.epmc(query) + '" target="_blank" rel="noopener">Europe PMC query ↗</a></div>'; }
@@ -626,7 +638,7 @@
       });
       box.appendChild(sec('Aging / longevity reading list (curated, ortholog-aware)', null, ab));
     }
-    box.appendChild(aiBlock('AI context — ' + T.label + ' lens', aiForLens(key)));
+    box.appendChild(aiBlock('AI context — ' + T.label + ' lens', aiForLens(key), T.label));
     return box;
   }
   function ruleText(T) { return T.kind === 'ot' ? 'OT EFO area-sum > ' + ENGINE.THRESH : T.kind === 'name' ? 'OT disease-name match' : 'GenAge ∪ LongevityMap'; }
@@ -669,16 +681,16 @@
     var dl = el('div', 'links');
     dl.innerHTML = [['STRING', 'https://string-db.org/network/' + enc(GENE.ids.string)], ['Open Targets', URLS.ot(GENE.ids.ensembl)], ['UniProt', URLS.uniprot(GENE.ids.uniprot)], ['NCBI Gene', URLS.ncbi(GENE.ids.entrez)], ['Ensembl', URLS.ensembl(GENE.ids.ensembl)], ['GeneCards', URLS.genecards('CTBP1')], ['AlphaFold', URLS.alphafold(GENE.ids.uniprot)]].map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + ' ↗</a>'; }).join('');
     box.appendChild(sec('Open in databases', null, dl));
-    box.appendChild(aiBlock('AI context — CTBP1 hub', aiForHub()));
+    box.appendChild(aiBlock('AI context — CTBP1 hub', aiForHub(), 'CTBP1'));
     return box;
   }
 
   // ======================================================================
   // AI blocks
   // ======================================================================
-  function aiBlock(title, text) {
+  function aiBlock(title, text, scope) {
     var b = el('div', 'aiblock');
-    b.innerHTML = '<div class="head"><span class="label-caps">' + esc(title) + '</span><button class="btn sm copyai" style="margin-left:auto">⧉ Copy</button></div>';
+    b.innerHTML = '<div class="head"><span class="label-caps">' + esc(title) + '</span><button class="copyai aicopy" style="margin-left:auto" title="Copy this ' + esc(scope) + ' AI context to the clipboard"><span class="k">⧉</span> Copy</button></div>';
     var pre = el('pre'); pre.textContent = text; b.appendChild(pre);
     return b;
   }
@@ -742,13 +754,17 @@
   // header buttons + modal
   // ======================================================================
   function wireHeader() {
-    var ibx = $('btnInsightClose'); if (ibx) ibx.addEventListener('click', function () { var b = $('insightBar'); if (b) b.classList.add('hidden'); });
+    // provenance strip is closed by default; the header "ⓘ Sources" button toggles it, ✕ closes it
+    function setStrip(open) { var b = $('insightBar'), sb = $('btnSources'); if (b) b.classList.toggle('hidden', !open); if (sb) sb.setAttribute('aria-pressed', open ? 'true' : 'false'); }
+    var ibx = $('btnInsightClose'); if (ibx) ibx.addEventListener('click', function () { setStrip(false); });
+    var src = $('btnSources'); if (src) src.addEventListener('click', function () { setStrip($('insightBar').classList.contains('hidden')); });
     var ex = $('btnExport'); if (ex) ex.addEventListener('click', function () { copyText(aiForAll(), ex); });
     function closeAll() { document.body.classList.remove('panel-open'); document.body.classList.remove('drawer-open'); }
     var m = $('btnMenu'); if (m) m.addEventListener('click', function () { document.body.classList.remove('drawer-open'); document.body.classList.toggle('panel-open'); });
     var pc = $('btnPanelClose'); if (pc) pc.addEventListener('click', function () { document.body.classList.remove('panel-open'); });
     var dz = $('btnDossier'); if (dz) dz.addEventListener('click', function () { document.body.classList.remove('panel-open'); document.body.classList.toggle('drawer-open'); });
     var dc = $('btnDrawerClose'); if (dc) dc.addEventListener('click', function () { document.body.classList.remove('drawer-open'); });
+    var hh = $('btnHubHome'); if (hh) hh.addEventListener('click', goHub);
     var bk = $('backdrop'); if (bk) bk.addEventListener('click', closeAll);
   }
   function flash(btn) { var o = btn.innerHTML; btn.innerHTML = '<span class="k">↻</span> Re-analyzed'; setTimeout(function () { btn.innerHTML = o; }, 1100); }
