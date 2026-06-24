@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CTBP1 ATLAS — interactor intelligence</title>
+<title>CTBP1 Interactome Atlas · interactor intelligence</title>
 <meta name="description" content="Offline, sourced profile of the top STRING interactors of human CTBP1 with a transparent inference engine.">
 
 <style>
@@ -54,6 +54,29 @@
   --display:'Hanken Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 }
 
+/* ===== DARK MODE — token overrides ONLY. Light mode (:root above) is the canonical design and is
+   left byte-for-byte untouched; dark applies only under <html data-theme="dark">. ===== */
+[data-theme="dark"]{
+  --background:#0a0f1a; --surface:#0a0f1a; --surface-bright:#121a2b; --surface-dim:#05080f;
+  --sc-lowest:#0c1421; --sc-low:#121c2d; --sc:#172339; --sc-high:#1e2b44; --sc-highest:#253451;
+  --surface-variant:#253451;
+  --on-surface:#e6edf9; --on-surface-variant:#a7b2c6; --outline:#8b95a9; --outline-variant:#2c3851;
+  --inverse-surface:#1b2740; --inverse-on-surface:#eaf1ff;   /* tooltip stays dark in both themes */
+  --primary:#9db8ff; --on-primary:#06142e; --primary-container:#1c2d54; --on-primary-container:#c8d8ff;
+  --primary-fixed:#1c2d54;
+  --secondary:#36d0e6; --on-secondary:#04222a; --secondary-container:#0c4a55; --on-secondary-container:#9bf0fb;
+  --cyan:#22d3ee; --tertiary:#3dd6e8; --error:#ff6b6b;
+  --shadow:0 4px 16px rgba(0,0,0,.5); --shadow-pop:0 8px 28px rgba(0,0,0,.6);
+  /* the pinned --area-<key> functional-area hues are kept identical (saturated, read fine on dark) */
+}
+/* dark fixes for the handful of rules with light-assuming hardcoded colours */
+[data-theme="dark"] .btn.primary:hover{background:#b9ccff;}
+[data-theme="dark"] thead th:hover{background:var(--sc-high);}
+[data-theme="dark"] .caveat{color:#fbbf24;}
+/* the constellation legend & hint use a translucent WHITE card in light mode — darken it in dark mode */
+[data-theme="dark"] .legend{background:rgba(16,24,40,.86);}
+[data-theme="dark"] .hint{background:rgba(16,24,40,.82);}
+
 /* ===================================================================== */
 /* base                                                                  */
 /* ===================================================================== */
@@ -94,16 +117,24 @@ header.topbar{
 .iconbtn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:var(--r);
   color:var(--on-surface-variant);font-size:18px;line-height:1;border:1px solid transparent;flex:none;}
 .iconbtn:hover{background:var(--sc);color:var(--on-surface);}
-.brand{display:flex;align-items:center;gap:var(--s2);white-space:nowrap;text-decoration:none;}
+/* theme toggle — styled like .iconbtn but ALWAYS visible (iconbtns are hidden ≥1024px) */
+.themebtn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:var(--r);
+  color:var(--on-surface-variant);font-size:15px;line-height:1;border:1px solid transparent;flex:none;background:none;cursor:pointer;}
+.themebtn:hover{background:var(--sc);color:var(--on-surface);border-color:var(--outline-variant);}
+.brand{display:flex;align-items:center;gap:var(--s2);white-space:nowrap;text-decoration:none;cursor:pointer;}
 .brand:hover{text-decoration:none;}
 /* CTBP1 Atlas wordmark leads; compact HADDTS Foundation lockup trails as a smaller secondary mark */
 .brand img.logo{height:22px;width:auto;display:block;opacity:.9;padding-left:10px;border-left:1px solid var(--outline-variant);}
+/* theme-aware brand mark: navy wordmark in light, white wordmark in dark */
+.brand img.logo-dark{display:none;}
+[data-theme="dark"] .brand img.logo-light{display:none;}
+[data-theme="dark"] .brand img.logo-dark{display:block;}
 .brand .brandname{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--on-surface);}
 .brand .brandname b{font-weight:400;color:var(--secondary);}
 .chips{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
 .chip{
   display:inline-flex;align-items:center;gap:5px;
-  font-family:var(--mono);font-size:11px;font-weight:500;padding:3px 8px;border-radius:var(--r);
+  font-family:var(--sans);font-size:11px;font-weight:500;padding:3px 8px;border-radius:var(--r);
   background:var(--surface-variant);border:1px solid transparent;color:var(--on-surface-variant);white-space:nowrap;
 }
 .chip a{color:var(--on-surface-variant);}.chip a:hover{color:var(--on-surface);text-decoration:none;}
@@ -123,6 +154,7 @@ header.topbar{
 .btn.ghost[aria-pressed="true"]{background:rgba(0,182,212,.14);}
 .btn .k{font-size:13px;}
 .btn.sm{padding:6px 11px;font-size:11.5px;}
+.btn.icon-only{gap:0;padding:6px 9px;}                 /* ⓘ Sources collapsed to just the info glyph */
 a.btn,a.btn:hover{text-decoration:none;}
 
 /* insight bar — the provenance-first strip (closable; desktop only) */
@@ -134,15 +166,13 @@ a.btn,a.btn:hover{text-decoration:none;}
 .insight.hidden{display:none;}
 .insight .ibody{flex:1;min-width:0;display:flex;flex-direction:column;gap:10px;}
 
-/* ID + meta row — every item is a uniform LABEL→value pair (one font, links cyan / static dark) */
-.insight .chips{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 8px;font-size:11.5px;}
-.insight .chips .ix{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap;}
-.insight .chips .lab{font-family:var(--display);font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--on-surface-variant);}
-.insight .chips a,.insight .chips button,.insight .chips .v{font-family:var(--mono);font-size:11.5px;font-weight:600;line-height:1.4;}
-.insight .chips a,.insight .chips button{color:var(--secondary);cursor:pointer;padding:0;}
-.insight .chips a:hover,.insight .chips button:hover{color:var(--on-surface);text-decoration:none;}
-.insight .chips .v{color:var(--on-surface);}
-.insight .chips .sep{color:var(--outline-variant);user-select:none;}
+/* first row = named source links + Method/Export rendered as the dossier "Open in databases" pills (.links);
+   below it, the static dataset meta (Built/Genes/Edges) as a subordinate LABEL value strip */
+.insight .chips{display:flex;flex-direction:column;align-items:flex-start;gap:9px;font-size:11.5px;}
+.insight .chips .metaline{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;}
+.insight .chips .metaline .mi{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap;}
+.insight .chips .metaline .ml{font-family:var(--display);font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--on-surface-variant);}
+.insight .chips .metaline .mv{font-family:var(--mono);font-size:11px;font-weight:600;line-height:1.4;color:var(--on-surface);}
 
 /* caption — a lead line above a sources line */
 .insight .srcline{display:flex;flex-direction:column;gap:6px;min-width:0;}
@@ -155,6 +185,14 @@ a.btn,a.btn:hover{text-decoration:none;}
 .insight .srcs .sep{color:var(--outline-variant);user-select:none;}
 .insight .ibx{flex:none;align-self:flex-start;width:26px;height:26px;border-radius:var(--r);color:var(--on-surface-variant);font-size:12px;line-height:1;border:1px solid transparent;}
 .insight .ibx:hover{background:var(--sc);border-color:var(--outline-variant);color:var(--on-surface);}
+/* "use it offline" recommendation — a clean neutral card with a heading line above the body */
+.insight .offline-note{background:var(--sc-low);border:1px solid var(--outline-variant);
+  border-radius:var(--r-md);padding:11px 13px;}
+.insight .offline-note .oh{font-family:var(--display);font-weight:700;font-size:13px;
+  letter-spacing:.01em;color:var(--on-surface);margin-bottom:4px;}
+.insight .offline-note .ob{font-size:12px;line-height:1.55;color:var(--on-surface-variant);}
+.insight .offline-note a{color:var(--secondary);font-weight:600;}
+.insight .offline-note a:hover{color:var(--on-surface);text-decoration:none;}
 
 /* body */
 .body{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;padding-bottom:var(--navh);}
@@ -219,10 +257,6 @@ select{
 }
 select:focus{outline:none;border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,182,212,.35);}
 
-.panel-foot{display:flex;justify-content:space-between;gap:var(--s3);padding-top:var(--s4);}
-.panel-foot a{display:flex;align-items:center;gap:6px;font-family:var(--display);font-size:11px;font-weight:700;
-  letter-spacing:.05em;text-transform:uppercase;color:var(--on-surface-variant);}
-.panel-foot a:hover{color:var(--on-surface);text-decoration:none;}
 
 /* ---- center ---- */
 .center{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--background);overflow:hidden;}
@@ -319,6 +353,16 @@ body.drawer-open .drawer{transform:none;}
 .dhead .rk{font-family:var(--mono);font-size:11px;color:var(--on-surface-variant);}
 .dsec{margin-top:var(--s5);}
 .dsec>.label-caps{display:flex;align-items:center;gap:6px;margin-bottom:9px;color:var(--on-surface);}
+/* collapsible "zum aufklappen" section — de-emphasised: a thin caps summary row that expands on click */
+.dsec.dcoll>summary{display:flex;align-items:center;cursor:pointer;list-style:none;font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--on-surface-variant);padding:2px 0;}
+.dsec.dcoll>summary::-webkit-details-marker{display:none;}
+.dsec.dcoll>summary:hover{color:var(--on-surface);}
+.dsec.dcoll>summary .lc{display:inline-flex;align-items:center;gap:6px;}
+.dsec.dcoll>summary .rt{margin-left:auto;display:flex;align-items:center;gap:9px;}
+.dsec.dcoll>summary .cextra{font-family:var(--mono);font-weight:600;letter-spacing:0;text-transform:none;color:var(--secondary);}
+.dsec.dcoll>summary .caret{font-size:9px;color:var(--on-surface-variant);transition:transform .15s;}
+.dsec.dcoll[open]>summary{margin-bottom:9px;color:var(--on-surface);}
+.dsec.dcoll[open]>summary .caret{transform:rotate(90deg);}
 
 .meter{margin-bottom:9px;}
 .meter .t{display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:3px;color:var(--on-surface);}
@@ -360,8 +404,8 @@ body.drawer-open .drawer{transform:none;}
 .paper .m{color:var(--on-surface-variant);font-size:10.5px;margin-top:1px;}
 
 .links{display:flex;flex-wrap:wrap;gap:6px;}
-.links a{font-size:11px;padding:5px 9px;border-radius:var(--r);background:var(--sc-low);border:1px solid var(--outline-variant);color:var(--on-surface-variant);}
-.links a:hover{color:var(--on-surface);border-color:var(--cyan);text-decoration:none;}
+.links a,.links button{font-family:inherit;font-size:11px;line-height:1.4;cursor:pointer;padding:5px 9px;border-radius:var(--r);background:var(--sc-low);border:1px solid var(--outline-variant);color:var(--on-surface-variant);}
+.links a:hover,.links button:hover{color:var(--on-surface);border-color:var(--cyan);text-decoration:none;}
 
 .caveat{display:flex;gap:8px;font-size:11.5px;color:#92400e;background:color-mix(in srgb,var(--area-neurodegen) 12%,var(--sc-lowest));
   border:1px solid color-mix(in srgb,var(--area-neurodegen) 30%,transparent);border-radius:var(--r);padding:9px 11px;margin-bottom:var(--s4);line-height:1.4;}
@@ -463,17 +507,19 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
   <!-- header -->
   <header class="topbar">
     <button class="iconbtn menu" id="btnMenu" aria-label="Open controls" title="Controls">☰</button>
-    <a class="brand" href="BUILD-PROMPT.md" target="_blank" rel="noopener" title="How was this built?">
-      <span class="brandname">CTBP1 <b>Atlas</b></span>
-      <img class="logo" src="logos/logo-vert-colored.svg" alt="HADDTS Foundation" onerror="this.style.display='none'">
+    <a class="brand" id="brandHome" role="button" tabindex="0" title="Back to the CTBP1 hub">
+      <span class="brandname">CTBP1 <b>Interactome Atlas</b></span>
+      <img class="logo logo-light" src="logos/logo-vert-colored.svg" alt="HADDTS Foundation" onerror="this.style.display='none'">
+      <img class="logo logo-dark" src="logos/logo-vert-white.svg" alt="HADDTS Foundation" onerror="this.style.display='none'">
     </a>
     <div class="spacer"></div>
-    <button class="btn ghost sm srcbtn" id="btnSources" title="Show / hide data sources, IDs &amp; export" aria-pressed="false"><span class="k">ⓘ</span> <span class="lbl">Sources</span></button>
+    <button class="btn ghost sm srcbtn icon-only" id="btnSources" title="Show / hide data sources, IDs &amp; export" aria-label="Show or hide data sources" aria-pressed="false"><span class="k">ⓘ</span></button>
     <button class="iconbtn dossier" id="btnDossier" aria-label="Open dossier" title="Dossier">▤</button>
+    <button class="themebtn" id="btnTheme" aria-label="Toggle dark mode" title="Switch to dark mode" aria-pressed="false">☾</button>
   </header>
 
   <!-- insight bar -->
-  <div class="insight hidden" id="insightBar"><div class="ibody"><div class="chips" id="geneChips"></div><div class="srcline" id="insightSrc">Loading…</div></div><button class="ibx" id="btnInsightClose" title="Dismiss this banner" aria-label="Dismiss">✕</button></div>
+  <div class="insight hidden" id="insightBar"><div class="ibody"><div class="chips" id="geneChips"></div><div class="offline-note"><div class="oh">Consider running this tool offline</div><div class="ob">This page is served over the internet via GitHub Pages. For a permanent, fully self-contained copy that works anywhere with no connection, download it from the <a href="https://github.com/HADDTS-Foundation" target="_blank" rel="noopener">HADDTS Foundation on GitHub ↗</a>.</div></div><div class="srcline" id="insightSrc">Loading…</div></div><button class="ibx" id="btnInsightClose" title="Dismiss this banner" aria-label="Dismiss">✕</button></div>
 
   <!-- body -->
   <div class="body">
@@ -486,34 +532,21 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
       </div>
 
       <div class="group">
-        <div class="label-caps">Fields <span class="info" data-tip="tip-lenses">i</span></div>
-        <div id="lensList"></div>
-        <div class="note">Lenses recolour and filter the views. Membership is decided by the data, never by hand — click a field to isolate its genes; click again to reset.</div>
+        <div class="label-caps">Trace connection <span class="info" data-tip="tip-trace">i</span></div>
+        <select id="traceSel"><option value="">Pick an interactor…</option></select>
+        <div class="note" id="traceOut">Every profiled gene is a direct STRING neighbour of CTBP1.</div>
       </div>
 
       <div class="group">
-        <div class="label-caps">Evidence weighting <span class="info" data-tip="tip-weights">i</span></div>
-        <div class="slider"><div class="top"><span class="nm">Physical</span><span class="vl" id="wPhysV">0.50</span></div><input type="range" id="wPhys" min="0" max="1" step="0.05" value="0.5"></div>
-        <div class="slider"><div class="top"><span class="nm">Literature</span><span class="vl" id="wLitV">0.30</span></div><input type="range" id="wLit" min="0" max="1" step="0.05" value="0.3"></div>
-        <div class="slider"><div class="top"><span class="nm">Network</span><span class="vl" id="wCtxV">0.20</span></div><input type="range" class="acc" id="wCtx" min="0" max="1" step="0.05" value="0.2"></div>
-        <div class="note">Re-weights the composite connection score live. Physical = STRING experiments + curated DBs (text-mining excluded by design).</div>
+        <div class="label-caps">Fields <span class="info" data-tip="tip-lenses">i</span></div>
+        <div id="lensList"></div>
+        <div class="note">Lenses recolour and filter the views. Genes are placed by the data following a fixed rule, not hand-picked. Click a field to isolate its genes; click again to reset.</div>
       </div>
 
       <div class="group">
         <div class="label-caps">Display limit <span class="info" data-tip="tip-limit">i</span></div>
         <div class="slider"><div class="top"><span class="nm">Top interactors drawn</span><span class="vl" id="limV">250</span></div><input type="range" id="displayLimit" min="10" max="250" step="5" value="250"></div>
-        <div class="note">How many of the top-ranked interactors to render in the visual views. The Table and Findings ignore this slider — focus a lens (above) to filter those.</div>
-      </div>
-
-      <div class="group">
-        <div class="label-caps">Trace connection <span class="info" data-tip="tip-trace">i</span></div>
-        <select id="traceSel"><option value="">— pick an interactor —</option></select>
-        <div class="note" id="traceOut">Every profiled gene is a direct STRING neighbour of CTBP1.</div>
-      </div>
-
-      <div class="panel-foot">
-        <a href="BUILD-PROMPT.md" target="_blank" rel="noopener">⚙ Methods</a>
-        <a href="https://string-db.org" target="_blank" rel="noopener">◎ Sources</a>
+        <div class="note">How many of the top-ranked interactors to render in the visual views. The Table and Findings ignore this slider; focus a lens (above) to filter those.</div>
       </div>
     </section>
 
@@ -532,7 +565,7 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
       <div class="stage">
         <div class="view on" id="v-constellation"><canvas id="cz"></canvas>
           <div class="legend" id="czLegend"></div>
-          <div class="hint">click a node · drag weights · gold halo = aging-linked</div>
+          <div class="hint">click a node to open its dossier · gold halo = aging-linked</div>
         </div>
         <div class="view scroll" id="v-table"><table id="tbl"><thead></thead><tbody></tbody></table></div>
         <div class="view scroll" id="v-findings">
@@ -564,7 +597,7 @@ body.panel-open .backdrop,body.drawer-open .backdrop{opacity:1;pointer-events:au
 
 <div id="intro">
   <div class="ring"></div>
-  <div class="tt">CTBP1 <b>Atlas</b> · loading evidence</div>
+  <div class="tt">CTBP1 <b>Interactome Atlas</b> · loading evidence</div>
 </div>
 
 <!-- data → engine → app  (strict load order; all offline, no network) -->

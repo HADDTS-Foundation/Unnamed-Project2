@@ -1,5 +1,5 @@
 /* ============================================================================
- * CTBP1 ATLAS — app.js  (rendering, interaction, views, drawer, AI export)
+ * CTBP1 INTERACTOME ATLAS — app.js  (rendering, interaction, views, drawer, AI export)
  * ----------------------------------------------------------------------------
  * Reads window.CTBP1_DATA + window.CTBP1_ENGINE. No build step, no framework,
  * no network at load. Every value rendered carries a click-through to the live
@@ -16,13 +16,16 @@
   var STOP = {}; ENGINE.STOPLIST.forEach(function (s) { STOP[s] = 1; });
 
   // -------- state --------
+  // Fixed composite weights (the §6.1 defaults). The Evidence-weighting sliders were removed —
+  // re-weighting moved genes only marginally, so the blend is now a constant, not a live control.
   var W = { phys: 0.5, lit: 0.3, ctx: 0.2 };
   var state = {
     view: 'constellation', layout: 'sector', limit: 100,
     sel: null,                 // selected partner sym (gene dossier)
     lens: null,                // selected disease-lens key (lens dossier); null = hub
     active: {},                // which lenses are toggled on (for filter/recolour)
-    findingsArea: null
+    findingsArea: null,
+    dark: false                // theme; set by initTheme() from localStorage (default light)
   };
   ORDER.forEach(function (k) { state.active[k] = true; });
 
@@ -85,24 +88,24 @@
   // glossary tooltips (instant, body-level — never the native title=)
   // ======================================================================
   var GLOSS = {
-    'tip-lenses': ['Fields', 'Biological / disease fields. The first five (oncology, metabolic, neurodegeneration, CNS, neurodevelopment) are the <b>constellation sectors</b> — they colour the map. The rest (aging, immunity, cardiovascular, hematologic, eye) are <b>cross-cutting overlays/filters</b> (aging also paints a gold halo). <b>Click a field to focus it</b> — every view filters to just that field; click again to reset. Which fields to show is editorial; which genes belong is decided only by the data.'],
-    'tip-weights': ['Evidence weighting', 'The composite score is a weighted blend of <b>Physical</b> (STRING experiments + curated databases — text-mining is deliberately excluded), <b>Literature</b> (synonym-aware CTBP1 co-mention), and <b>Network</b> (partner–partner context). Sliders re-rank live.'],
+    'tip-lenses': ['Fields', 'Biological / disease fields. The first five (oncology, metabolic, neurodegeneration, CNS, neurodevelopment) are the <b>constellation sectors</b>; they colour the map. The rest (aging, immunity, cardiovascular, hematologic, eye) are <b>cross-cutting overlays/filters</b> (aging also paints a gold halo). <b>Click a field to focus it</b>; every view filters to just that field; click again to reset. <b>Be aware:</b> which fields exist, which diseases count for each, and the membership cut-offs are all editorial choices, and the data then decides which genes meet those hand-set rules. Membership is reproducible, but the rules themselves are a human judgement, not an objective fact.'],
     'tip-limit': ['Display limit', 'How many of the top-ranked interactors to draw in the visual views. The Table and Findings ignore this slider; focus a lens (left panel) to filter them by area.'],
-    'tip-trace': ['Trace connection', 'Every profiled gene is a direct STRING neighbour of CTBP1, so the trace is the direct edge — no spurious indirect detour through the corepressor hub clique.'],
-    'composite': ['Composite connection', '100 × weighted mean of physical, literature and network sub-scores. Re-weight with the Evidence sliders.'],
-    'phys': ['Physical', 'clamp(experiments + 0.5·curated-DB). STRING combined score is excluded so a text-only pair never reads as physical.'],
-    'lit': ['Literature', 'log-scaled CTBP1 co-mention. Ambiguous/housekeeping symbols are zeroed out of this score.'],
-    'ctx': ['Network context', 'Summed partner↔partner STRING edge weight (the CTBP1 hub excluded), normalised across the neighbourhood.'],
-    'intact': ['IntAct', 'Curated <i>experimental</i> interaction evidence: interaction type (incl. direct interaction), detection method, PMID and MI-score.'],
-    'miscore': ['MI-score', 'IntAct molecular-interaction confidence score (0–1) aggregating evidence for the pair.'],
-    'plp': ['ClinVar P/LP', 'Pathogenic + Likely-pathogenic variant records (NCBI ClinVar, exact clinsig_pathogenic / clinsig_likely_path filters).'],
-    'vus': ['ClinVar VUS', 'Variants of uncertain significance (clinsig_vus filter).'],
-    'comention': ['Co-mention tiers', 'Synonym-aware CTBP1 co-occurrence: in title, in title+abstract, and anywhere in full text. Each links to the exact Europe PMC query.'],
-    'channels': ['STRING channels', 'Evidence channels behind the combined score: experiments, databases, text-mining, co-expression, fusion, neighborhood, co-occurrence.'],
-    'reactome': ['Reactome pathways', 'Specific leaf pathways mapped from UniProt, not broad umbrella categories.'],
-    'hpo': ['HPO phenotypes', 'Human Phenotype Ontology clinical terms annotated to the gene (keyed by NCBI Gene id).'],
-    'mech': ['Mechanism tags', 'Function-text tags (redox, chromatin, co-repression, Wnt/EMT, synaptic, apoptosis). NAD⁺/redox is a mechanism — not the Aging area.'],
-    'type': ['Connection type', 'Core complex / Physical interactor / Literature-linked / Functional neighbour / Associated — keyed off physical evidence, never the DB channel alone.']
+    'tip-trace': ['Trace connection', 'Every profiled gene is a direct STRING neighbour of CTBP1, so the trace is the direct edge, with no spurious indirect detour through the corepressor hub clique.'],
+    'composite': ['Composite connection', 'A <b>heuristic prioritisation score</b> (0–100) for sorting and exploring. It is not a probability, a measurement, or a statement of real biological importance. It is 100 × a weighted blend of three sub-scores: <b>Physical</b> 0.5, <b>Literature</b> 0.3, <b>Network context</b> 0.2. Those weights are an <b>editorial choice</b>; a different blend would re-order the genes. Expand the section to see the parts behind the number.'],
+    'phys': ['Physical', 'STRING experiment + 0.5·curated-database channels (the combined score is excluded so text-only pairs do not read as physical). These are STRING <b>confidence values, not proof of direct binding</b>; the experiments channel includes high-throughput screens that can be indirect or wrong. Read it as "physical evidence exists", not "proven complex".'],
+    'lit': ['Literature', 'A log-scaled count of papers co-mentioning this gene with CTBP1. <b>Co-mention is correlation, not interaction</b>, and it is heavily skewed toward well-studied genes, so a high value can mean "famous", not "related". Housekeeping / ambiguous symbols are zeroed out.'],
+    'ctx': ['Network context', 'How interconnected this gene is with the <i>other</i> CTBP1 partners (summed partner–partner STRING edge weight, hub excluded, normalised). This is <b>network topology, not functional proof</b>; being well-connected does not establish a functional link to CTBP1.'],
+    'intact': ['IntAct', 'Curated <i>experimental</i> interaction records: type, detection method, PMID and MI-score. Note: "physical association" often means <b>co-membership in a complex, not direct binding</b>; "direct interaction" is the stronger claim. Each record is real and citable.'],
+    'miscore': ['MI-score', 'IntAct molecular-interaction confidence score (0–1) aggregating the evidence for a pair. Higher = better-supported, but it is a <b>confidence weight, not an effect size or a probability of direct binding</b>.'],
+    'plp': ['ClinVar P/LP', 'A <b>gene-level</b> tally of Pathogenic + Likely-pathogenic variant records in NCBI ClinVar (exact clinsig_pathogenic / clinsig_likely_path filters). It counts database records for the gene, <b>not a clinical interpretation of any person or variant, and not medical advice</b>.'],
+    'vus': ['ClinVar VUS', 'Count of <b>variants of uncertain significance</b> (clinsig_vus filter). "Uncertain" means exactly that (neither benign nor pathogenic), and is <b>no basis for any clinical conclusion</b>.'],
+    'comention': ['Co-mention tiers', 'Synonym-aware counts of papers mentioning both genes (in title, in title+abstract, or anywhere in full text), each linking to the exact Europe PMC query. <b>Co-occurrence is not a real or direct relationship</b>, and the counts are skewed by how heavily each gene is studied. A starting point for reading, not evidence.'],
+    'channels': ['STRING channels', 'The evidence channels behind the STRING combined score: experiments, databases, text-mining, co-expression, fusion, neighborhood, co-occurrence. Each is a <b>confidence value (0–1), not a probability of physical binding</b>; text-mining in particular reflects the literature, not biology.'],
+    'reactome': ['Reactome pathways', 'Specific Reactome leaf pathways for <i>this</i> gene (mapped from UniProt; broad umbrellas filtered out). These are its own pathway annotations, <b>not evidence of a pathway shared with CTBP1</b>.'],
+    'hpo': ['HPO phenotypes', 'Human Phenotype Ontology terms annotated to <i>this gene</i> (by NCBI Gene id), aggregated across reports. <b>Gene-level annotations, not a description of any individual patient</b>, and not medical advice.'],
+    'mech': ['Mechanism tags', 'Keyword tags matched from the function text of the gene (redox, chromatin, co-repression, Wnt/EMT, synaptic, apoptosis). They flag <b>vocabulary in that description: suggestive themes, not evidence the mechanism acts with CTBP1</b>. NAD⁺/redox is a mechanism tag, not the Aging area.'],
+    'type': ['Connection type', 'A coarse label from STRING/IntAct confidence thresholds: Core complex / Physical interactor / Literature-linked / Functional neighbour / Associated. The <b>thresholds are chosen heuristics</b>, and "Core complex" / "Physical interactor" mean strong STRING/IntAct support, <b>not experimentally proven direct binding</b>.'],
+    'aictx': ['AI context', 'A plain-text export of everything shown here: every value, score and <b>source link</b>. Use the ⧉ Copy button, paste it into your preferred AI assistant (e.g. Claude or ChatGPT) as background context, then ask your question. <b>Always check its answers against the linked sources</b>, because an AI can over-interpret or invent relationships the data does not support.']
   };
   var tip = $('tip'), tipHideT;
   function showTip(target, html) {
@@ -155,23 +158,31 @@
   // ======================================================================
   function renderChips() {
     var ids = GENE.ids, c = $('geneChips');
-    var chips = [
-      ['Ensembl', ids.ensembl, URLS.ensembl(ids.ensembl)],
-      ['Entrez', ids.entrez, URLS.ncbi(ids.entrez)],
-      ['UniProt', ids.uniprot, URLS.uniprot(ids.uniprot)],
-      ['STRING', (ids.string || '').split('.').pop(), 'https://string-db.org/network/' + enc(ids.string)]
-    ];
-    if (GENE.mim) chips.push(['OMIM', GENE.mim, URLS.omim(GENE.mim)]);
-    // every item is a uniform LABEL→value pair, middot-separated (no boxes, no icons)
-    function item(label, valueHTML) { return '<span class="ix"><span class="lab">' + label + '</span> ' + valueHTML + '</span>'; }
-    function link(href, text, attrs) { return '<a ' + (attrs || '') + ' href="' + href + '" target="_blank" rel="noopener">' + esc(text) + '</a>'; }
-    var frags = chips.map(function (x) { return item(x[0], link(x[2], x[1])); });
-    frags.push(item('Built', '<span class="v" id="builtDate">' + esc(META.date) + '</span>'));
-    frags.push(item('Genes', '<span class="v">' + META.nodeCount + '</span>'));
-    frags.push(item('Edges', '<span class="v">' + META.edgeCount + '</span>'));
-    frags.push(item('Method', link('BUILD-PROMPT.md', 'How it was built', 'id="btnHowBuilt"')));
-    frags.push(item('Export', '<button id="btnExport" title="Copy the entire sourced CTBP1 AI context — the CTBP1 hub + all 10 fields + every interactor — about 500,000 tokens, ready to paste into an LLM">Copy AI context (~500k)</button>'));
-    c.innerHTML = frags.join('<span class="sep">·</span>');
+    // First row: named source links, each with a trailing ↗, styled exactly like the gene dossier's
+    // "Open in databases" block (the .links pills) — NOT LABEL→value mono pairs. The bare ID strings
+    // are no longer printed; the named link carries the ID (it resolves to that live record).
+    var links = [
+      ['STRING', 'https://string-db.org/network/' + enc(ids.string)],
+      ['Open Targets', URLS.ot(ids.ensembl)],
+      ['UniProt', URLS.uniprot(ids.uniprot)],
+      ['NCBI Gene', URLS.ncbi(ids.entrez)],
+      ['Ensembl', URLS.ensembl(ids.ensembl)],
+      GENE.mim ? ['OMIM', URLS.omim(GENE.mim)] : null
+    ].filter(Boolean);
+    var html = '<div class="links">' +
+      links.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + ' ↗</a>'; }).join('') +
+      // the two action links share the same named-link-with-↗ identity as the sources
+      '<a id="btnHowBuilt" href="BUILD-PROMPT.md" target="_blank" rel="noopener">Method ↗</a>' +
+      '<button id="btnExport" title="Copy the entire sourced CTBP1 AI context (the CTBP1 hub, all 10 fields, and every interactor), about 500,000 tokens, ready to paste into an LLM"><span class="k">⧉</span> Export AI Context of all Interactions</button>' +
+      '</div>';
+    // Static dataset meta (counts, not links → no ↗): subordinate, set after the link row.
+    function mi(label, valHTML) { return '<span class="mi"><span class="ml">' + label + '</span> ' + valHTML + '</span>'; }
+    html += '<div class="metaline">' +
+      mi('Built', '<span class="mv" id="builtDate">' + esc(META.date) + '</span>') +
+      mi('Genes', '<span class="mv">' + META.nodeCount + '</span>') +
+      mi('Edges', '<span class="mv">' + META.edgeCount + '</span>') +
+      '</div>';
+    c.innerHTML = html;
   }
 
   // ======================================================================
@@ -200,20 +211,13 @@
     ORDER.forEach(addLens);
   }
 
-  function wireWeights() {
-    [['wPhys', 'phys', 'wPhysV'], ['wLit', 'lit', 'wLitV'], ['wCtx', 'ctx', 'wCtxV']].forEach(function (x) {
-      var inp = $(x[0]), lab = $(x[2]);
-      inp.addEventListener('input', function () {
-        W[x[1]] = parseFloat(inp.value); lab.textContent = f2(W[x[1]]);
-        reanalyse(); renderInsight(); renderLenses(); renderActiveView(); renderDiscoveries(); refreshDrawer();
-      });
-    });
+  function wireControls() {
     var lim = $('displayLimit');
     lim.max = analysis.length; lim.value = analysis.length; state.limit = analysis.length; $('limV').textContent = analysis.length;   // scale to the actual neighborhood
     lim.addEventListener('input', function () { state.limit = parseInt(lim.value, 10); $('limV').textContent = state.limit; renderActiveView(); });
     var sel = $('traceSel');
     analysis.slice().sort(function (a, b) { return a.sym < b.sym ? -1 : 1; }).forEach(function (p) {
-      var o = el('option'); o.value = p.sym; o.textContent = p.sym + ' — ' + p.name; sel.appendChild(o);
+      var o = el('option'); o.value = p.sym; o.textContent = p.sym + ' · ' + p.name; sel.appendChild(o);
     });
     sel.addEventListener('change', function () { if (sel.value) { trace(sel.value); select(sel.value); } });
   }
@@ -235,7 +239,7 @@
         ['ClinVar', 'https://www.ncbi.nlm.nih.gov/clinvar'], ['HPO', 'https://hpo.jax.org'],
         ['Reactome', 'https://reactome.org'], ['GenAge / LongevityMap', 'https://genomics.senescence.info']];
       src.innerHTML =
-        '<div class="lead"><b>' + analysis.length + ' STRING interactors</b> of human CTBP1 — the top-250 by combined score. Fully offline; every value links to its live source. Snapshot <b>' + esc(META.date) + '</b>.</div>' +
+        '<div class="lead"><b>' + analysis.length + ' STRING interactors</b> of human CTBP1, the top-250 by combined score. Fully offline; every value links to its live source. Snapshot <b>' + esc(META.date) + '</b>.</div>' +
         '<div class="srcs"><span class="lab">Sources</span>' +
           SRC.map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + esc(x[0]) + '</a>'; }).join('<span class="sep">·</span>') +
         '</div>';
@@ -335,11 +339,11 @@
         g.beginPath(); g.arc(q.x, q.y, r + 11, 0, 7); g.fillStyle = ha; g.fill();
       }
       g.beginPath(); g.arc(q.x, q.y, r, 0, 7); g.fillStyle = col; g.fill();
-      if (state.sel === p.sym) { g.lineWidth = 2; g.strokeStyle = '#0b1c30'; g.stroke(); }
+      if (state.sel === p.sym) { g.lineWidth = 2; g.strokeStyle = state.dark ? '#e6edf9' : '#0b1c30'; g.stroke(); }
       hot.constellation.push({ sym: p.sym, x: q.x, y: q.y, r: r + 3 });
     });
     // hub
-    var _hw=48,_hh=32,_rr=8,_hx=cx-_hw/2,_hy=cy-_hh/2; g.beginPath(); g.moveTo(_hx+_rr,_hy); g.arcTo(_hx+_hw,_hy,_hx+_hw,_hy+_hh,_rr); g.arcTo(_hx+_hw,_hy+_hh,_hx,_hy+_hh,_rr); g.arcTo(_hx,_hy+_hh,_hx,_hy,_rr); g.arcTo(_hx,_hy,_hx+_hw,_hy,_rr); g.closePath(); g.fillStyle = '#001b44'; g.fill(); g.lineWidth = 2; g.strokeStyle = '#00b6d4'; g.stroke();
+    var _hw=48,_hh=32,_rr=8,_hx=cx-_hw/2,_hy=cy-_hh/2; g.beginPath(); g.moveTo(_hx+_rr,_hy); g.arcTo(_hx+_hw,_hy,_hx+_hw,_hy+_hh,_rr); g.arcTo(_hx+_hw,_hy+_hh,_hx,_hy+_hh,_rr); g.arcTo(_hx,_hy+_hh,_hx,_hy,_rr); g.arcTo(_hx,_hy,_hx+_hw,_hy,_rr); g.closePath(); g.fillStyle = state.dark ? '#16306a' : '#001b44'; g.fill(); g.lineWidth = 2; g.strokeStyle = '#00b6d4'; g.stroke();
     g.fillStyle = '#ffffff'; g.font = '700 12px ' + MONO; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('CTBP1', cx, cy);
     renderConstLegend();
   }
@@ -478,6 +482,8 @@
     else d.innerHTML = '', d.appendChild(hubDossier());
     var home = $('btnHubHome'); if (home) home.style.display = (state.sel || state.lens) ? 'inline-flex' : 'none';   // "back to hub" only when off-hub
     wireGlossary(d);
+    // an ⓘ inside a collapsible summary should show its tooltip (hover/focus) without toggling the section
+    d.querySelectorAll('details.dcoll summary .info').forEach(function (ic) { ic.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); }); });
     d.querySelectorAll('button.copyai').forEach(function (b) { b.addEventListener('click', function () { copyText(b.closest('.aiblock').querySelector('pre').textContent, b); }); });
     d.querySelectorAll('a.gsel').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); var lens = a.getAttribute('data-lens'); if (lens) openLens(lens); else select(a.getAttribute('data-sym')); }); });
   }
@@ -491,6 +497,16 @@
   function meter(name, tipKey, val, col) {
     return '<div class="meter"><div class="t"><span>' + esc(name) + ' ' + (tipKey ? info(tipKey) : '') + '</span><span class="vl">' + f2(val) + '</span></div><div class="mtrack"><i style="width:' + pct(val) + '%;background:' + (col || 'var(--primary)') + '"></i></div></div>';
   }
+  // collapsible section ("zum aufklappen"): closed by default, keeps a headline value in the summary
+  function secColl(label, tipKey, bodyNode, extraHTML) {
+    var s = el('details', 'dsec dcoll');
+    var sum = el('summary');
+    sum.innerHTML = '<span class="lc">' + esc(label) + (tipKey ? ' ' + info(tipKey) : '') + '</span>' +
+      '<span class="rt">' + (extraHTML ? '<span class="cextra">' + extraHTML + '</span>' : '') + '<span class="caret">▸</span></span>';
+    s.appendChild(sum);
+    if (bodyNode) s.appendChild(bodyNode);
+    return s;
+  }
 
   function geneDossier(p) {
     var node = p.node, col = areaSolid(p.dominant);
@@ -499,20 +515,7 @@
     var head = el('div', 'dhead');
     head.innerHTML = '<div class="tag" style="background:' + col + '"></div><div style="flex:1"><h2>' + esc(p.sym) + '</h2><div class="nm">' + esc(p.name) + '</div><div class="rk">rank #' + p.rank + ' · ' + esc(p.type) + ' ' + info('type') + '</div></div>';
     box.appendChild(head);
-    if (p.stop) box.appendChild(el('div', 'caveat', '⚠ <div>Ambiguous / house-keeping symbol — its literature co-mention is unreliable and is excluded from the literature score.</div>'));
-
-    // connection meters
-    var conn = ENGINE.connection(p, W);
-    box.appendChild(sec('Connection', 'composite', el('div', null,
-      '<div class="meter"><div class="t"><span>Composite ' + info('composite') + '</span><span class="vl">' + conn.composite.toFixed(0) + ' / 100</span></div><div class="mtrack"><i style="width:' + conn.composite + '%;background:' + col + '"></i></div></div>' +
-      meter('Physical', 'phys', p.phys) + meter('Literature', 'lit', p.lit) + meter('Network context', 'ctx', p.ctx, 'var(--tertiary)'))));
-
-    // STRING channels
-    var s = node.s, chans = [['e', 'Experiments'], ['d', 'Databases'], ['t', 'Text-mining'], ['a', 'Co-expression'], ['p', 'Fusion'], ['n', 'Neighborhood'], ['f', 'Co-occurrence']];
-    var cb = el('div'); cb.innerHTML = '<div class="muted" style="font-size:11px;margin-bottom:6px">Combined <b class="num" style="color:var(--on-surface)">' + f2(s.c) + '</b> · physical uses experiments + databases only</div>' +
-      chans.map(function (c) { return '<div class="chan"><span class="nm">' + c[1] + '</span>' + bar(s[c[0]] || 0) + '<span class="vl">' + f2(s[c[0]] || 0) + '</span></div>'; }).join('') +
-      '<div class="links" style="margin-top:8px"><a href="' + URLS.string(p.sym) + '" target="_blank" rel="noopener">STRING network ↗</a></div>';
-    box.appendChild(sec('STRING channels', 'channels', cb));
+    if (p.stop) box.appendChild(el('div', 'caveat', '⚠ <div>Ambiguous / house-keeping symbol; its literature co-mention is unreliable and is excluded from the literature score.</div>'));
 
     // IntAct
     if (node.intact) {
@@ -526,6 +529,17 @@
         '<div class="links" style="margin-top:7px"><a href="' + URLS.intact(p.sym) + '" target="_blank" rel="noopener">IntAct ↗</a></div>';
       box.appendChild(sec('IntAct experimental evidence', 'intact', ib));
     }
+
+    // literature (tiered co-mention + papers) — moved up, above Field memberships, for prominence
+    var q = cmQueries(node), cm = node.comention || { title: 0, abs: 0, all: 0 };
+    var lb = el('div');
+    lb.innerHTML =
+      litRow('In title', cm.title, q.title) + litRow('Title + abstract', cm.abs, q.abs) + litRow('Full text', cm.all, q.all) +
+      (node.syn && node.syn.length ? '<div class="muted" style="font-size:11px;margin:6px 0">synonyms searched: <span class="mono">' + esc(node.syn.join(', ')) + '</span></div>' : '');
+    (node.refs || []).forEach(function (r) {
+      lb.appendChild(el('div', 'paper', '<div class="t"><a href="' + URLS.pubmedId(r.pmid) + '" target="_blank" rel="noopener">' + esc(r.t || ('PMID ' + r.pmid)) + '</a></div><div class="m">' + esc([r.a, r.j, r.y].filter(Boolean).join(' · ')) + (r.c ? ' · ' + r.c + ' cites' : '') + '</div>'));
+    });
+    box.appendChild(sec('Literature co-mention', 'comention', lb));
 
     // disease areas (flags)
     if (p.flags.length) {
@@ -554,24 +568,20 @@
       box.appendChild(sec('Top disease associations (Open Targets)', null, db));
     }
 
-    // literature (tiered co-mention + papers)
-    var q = cmQueries(node), cm = node.comention || { title: 0, abs: 0, all: 0 };
-    var lb = el('div');
-    lb.innerHTML =
-      litRow('In title', cm.title, q.title) + litRow('Title + abstract', cm.abs, q.abs) + litRow('Full text', cm.all, q.all) +
-      (node.syn && node.syn.length ? '<div class="muted" style="font-size:11px;margin:6px 0">synonyms searched: <span class="mono">' + esc(node.syn.join(', ')) + '</span></div>' : '');
-    (node.refs || []).forEach(function (r) {
-      lb.appendChild(el('div', 'paper', '<div class="t"><a href="' + URLS.pubmedId(r.pmid) + '" target="_blank" rel="noopener">' + esc(r.t || ('PMID ' + r.pmid)) + '</a></div><div class="m">' + esc([r.a, r.j, r.y].filter(Boolean).join(' · ')) + (r.c ? ' · ' + r.c + ' cites' : '') + '</div>'));
-    });
-    box.appendChild(sec('Literature co-mention', 'comention', lb));
+    // pathways (Reactome) — moved up, above Clinical variants
+    if ((node.pathways || []).length) {
+      var rb = el('div');
+      rb.innerHTML = node.pathways.slice(0, 10).map(function (n) { return '<div class="disrow"><span class="nm"><a href="' + URLS.reactome(n) + '" target="_blank" rel="noopener">' + esc(n) + '</a></span></div>'; }).join('');
+      box.appendChild(sec('Pathways (Reactome)', 'reactome', rb));
+    }
 
     // clinical variants
     var cv = node.clinvar;
     if (cv) {
       var vb = el('div'); vb.innerHTML =
-        '<div class="kv"><span class="k">Pathogenic / Likely-path ' + info('plp') + '</span><span class="v"><a class="mono" href="' + URLS.clinvarPLP(p.sym) + '" target="_blank" rel="noopener">' + cv.plp + '</a></span></div>' +
-        '<div class="kv"><span class="k">Uncertain (VUS) ' + info('vus') + '</span><span class="v"><a class="mono" href="' + URLS.clinvarVUS(p.sym) + '" target="_blank" rel="noopener">' + cv.vus + '</a></span></div>' +
-        '<div class="kv"><span class="k">Total records</span><span class="v"><a class="mono" href="' + URLS.clinvarTotal(p.sym) + '" target="_blank" rel="noopener">' + cv.total + '</a></span></div>';
+        '<div class="kv"><span class="k">Pathogenic / Likely-path ' + info('plp') + '</span><span class="v"><a class="mono" href="' + URLS.clinvarPLP(p.sym) + '" target="_blank" rel="noopener">' + cv.plp + ' ↗</a></span></div>' +
+        '<div class="kv"><span class="k">Uncertain (VUS) ' + info('vus') + '</span><span class="v"><a class="mono" href="' + URLS.clinvarVUS(p.sym) + '" target="_blank" rel="noopener">' + cv.vus + ' ↗</a></span></div>' +
+        '<div class="kv"><span class="k">Total records</span><span class="v"><a class="mono" href="' + URLS.clinvarTotal(p.sym) + '" target="_blank" rel="noopener">' + cv.total + ' ↗</a></span></div>';
       box.appendChild(sec('Clinical variants (ClinVar)', null, vb));
     }
 
@@ -582,13 +592,6 @@
         '<div class="muted" style="font-size:11px">' + node.phenoCount + ' terms total</div>' +
         '<div class="links" style="margin-top:7px"><a href="' + URLS.hpo(node.entrez) + '" target="_blank" rel="noopener">HPO API ↗</a><a href="' + URLS.monarch(node.entrez) + '" target="_blank" rel="noopener">Monarch ↗</a></div>';
       box.appendChild(sec('Clinical phenotypes (HPO)', 'hpo', pb));
-    }
-
-    // pathways (Reactome)
-    if ((node.pathways || []).length) {
-      var rb = el('div');
-      rb.innerHTML = node.pathways.slice(0, 10).map(function (n) { return '<div class="disrow"><span class="nm"><a href="' + URLS.reactome(n) + '" target="_blank" rel="noopener">' + esc(n) + '</a></span></div>'; }).join('');
-      box.appendChild(sec('Pathways (Reactome)', 'reactome', rb));
     }
 
     // mechanism tags
@@ -607,7 +610,20 @@
     ].filter(Boolean).map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + ' ↗</a>'; }).join('');
     box.appendChild(sec('Open in databases', null, dl));
 
-    box.appendChild(aiBlock('AI context — ' + p.sym, aiForGene(p), p.sym));
+    // connection meters + STRING channels — de-emphasised, moved to the bottom (just above AI context);
+    // both collapsible, closed by default, with the headline value kept in the summary.
+    var conn = ENGINE.connection(p, W);
+    box.appendChild(secColl('Connection', 'composite', el('div', null,
+      '<div class="meter"><div class="t"><span>Composite ' + info('composite') + '</span><span class="vl">' + conn.composite.toFixed(0) + ' / 100</span></div><div class="mtrack"><i style="width:' + conn.composite + '%;background:' + col + '"></i></div></div>' +
+      meter('Physical', 'phys', p.phys) + meter('Literature', 'lit', p.lit) + meter('Network context', 'ctx', p.ctx, 'var(--tertiary)')),
+      'Composite ' + conn.composite.toFixed(0) + ' / 100'));
+    var s = node.s, chans = [['e', 'Experiments'], ['d', 'Databases'], ['t', 'Text-mining'], ['a', 'Co-expression'], ['p', 'Fusion'], ['n', 'Neighborhood'], ['f', 'Co-occurrence']];
+    var cb = el('div'); cb.innerHTML = '<div class="muted" style="font-size:11px;margin-bottom:6px">Combined <b class="num" style="color:var(--on-surface)">' + f2(s.c) + '</b> · physical uses experiments + databases only</div>' +
+      chans.map(function (c) { return '<div class="chan"><span class="nm">' + c[1] + '</span>' + bar(s[c[0]] || 0) + '<span class="vl">' + f2(s[c[0]] || 0) + '</span></div>'; }).join('') +
+      '<div class="links" style="margin-top:8px"><a href="' + URLS.string(p.sym) + '" target="_blank" rel="noopener">STRING network ↗</a></div>';
+    box.appendChild(secColl('STRING channels', 'channels', cb, 'Combined ' + f2(s.c)));
+
+    box.appendChild(aiBlock('AI context: ' + p.sym, aiForGene(p), p.sym));
     return box;
   }
   function litRow(tier, n, query) { return '<div class="litrow"><span class="tier">' + tier + '</span><span class="n">' + n + '</span><a href="' + URLS.epmc(query) + '" target="_blank" rel="noopener">Europe PMC query ↗</a></div>'; }
@@ -632,20 +648,20 @@
     // paper a human-only "CTBP1" literature search misses. (BUILD-PROMPT §8)
     if (key === 'aging' && (GENE.agingRefs || []).length) {
       var ab = el('div');
-      ab.appendChild(el('div', 'muted', '<div style="font-size:11.5px;line-height:1.45;margin-bottom:8px">Curated CTBP1 longevity / redox literature, ortholog-aware (CtBP1 · CTBP-1 · ctbp-1) — papers a human-only “CTBP1” search misses. A reading list, not a discovery claim.</div>'));
+      ab.appendChild(el('div', 'muted', '<div style="font-size:11.5px;line-height:1.45;margin-bottom:8px">Curated CTBP1 longevity / redox literature, ortholog-aware (CtBP1 · CTBP-1 · ctbp-1): papers a human-only “CTBP1” search misses. A reading list, not a discovery claim.</div>'));
       GENE.agingRefs.forEach(function (r) {
         ab.appendChild(el('div', 'paper', '<div class="t"><a href="' + URLS.pubmedId(r.pmid) + '" target="_blank" rel="noopener">' + esc(r.t) + '</a></div><div class="m">' + esc([r.a, r.j, r.y].filter(Boolean).join(' · ')) + (r.c ? ' · ' + r.c + ' cites' : '') + ' · <span class="mono">PMID ' + esc(r.pmid) + '</span></div>'));
       });
       box.appendChild(sec('Aging / longevity reading list (curated, ortholog-aware)', null, ab));
     }
-    box.appendChild(aiBlock('AI context — ' + T.label + ' lens', aiForLens(key), T.label));
+    box.appendChild(aiBlock('AI context: ' + T.label + ' lens', aiForLens(key), T.label));
     return box;
   }
   function ruleText(T) { return T.kind === 'ot' ? 'OT EFO area-sum > ' + ENGINE.THRESH : T.kind === 'name' ? 'OT disease-name match' : 'GenAge ∪ LongevityMap'; }
   function ruleLong(T) {
     if (T.kind === 'ot') return 'A gene belongs if its Open Targets association scores summed over the EFO therapeutic area(s) <b>' + esc(T.efo.join(' + ')) + '</b> exceed ' + ENGINE.THRESH + '. The disease-name regex is used only to surface example diseases, never to decide membership.';
     if (T.kind === 'name') return 'A gene belongs if one of its own Open Targets disease associations matches the area\'s disease-name pattern and clears the floor (score ≥ ' + ENGINE.FLOOR_HARD + ', or a top-3 association with score ≥ ' + ENGINE.FLOOR_SOFT + ').';
-    return 'A gene belongs if it is a curated human ageing gene in GenAge or carries a significant longevity association in LongevityMap (HAGR). Aging is an overlay — it never overrides a gene\'s dominant disease colour.';
+    return 'A gene belongs if it is a curated human ageing gene in GenAge or carries a significant longevity association in LongevityMap (HAGR). Aging is an overlay; it never overrides a gene\'s dominant disease colour.';
   }
 
   // CTBP1 hub dossier
@@ -665,9 +681,9 @@
     // ids/clinvar
     var cv = GENE.clinvar;
     if (cv) box.appendChild(sec('CTBP1 clinical variants (ClinVar)', null, el('div', null,
-      '<div class="kv"><span class="k">P/LP</span><span class="v"><a class="mono" href="' + URLS.clinvarPLP('CTBP1') + '" target="_blank" rel="noopener">' + cv.plp + '</a></span></div>' +
-      '<div class="kv"><span class="k">VUS</span><span class="v"><a class="mono" href="' + URLS.clinvarVUS('CTBP1') + '" target="_blank" rel="noopener">' + cv.vus + '</a></span></div>' +
-      '<div class="kv"><span class="k">Total</span><span class="v"><a class="mono" href="' + URLS.clinvarTotal('CTBP1') + '" target="_blank" rel="noopener">' + cv.total + '</a></span></div>')));
+      '<div class="kv"><span class="k">P/LP</span><span class="v"><a class="mono" href="' + URLS.clinvarPLP('CTBP1') + '" target="_blank" rel="noopener">' + cv.plp + ' ↗</a></span></div>' +
+      '<div class="kv"><span class="k">VUS</span><span class="v"><a class="mono" href="' + URLS.clinvarVUS('CTBP1') + '" target="_blank" rel="noopener">' + cv.vus + ' ↗</a></span></div>' +
+      '<div class="kv"><span class="k">Total</span><span class="v"><a class="mono" href="' + URLS.clinvarTotal('CTBP1') + '" target="_blank" rel="noopener">' + cv.total + ' ↗</a></span></div>')));
     // landmark refs
     if ((GENE.refs || []).length) {
       var rb = el('div'); (GENE.refs || []).slice(0, 6).forEach(function (r) { rb.appendChild(el('div', 'paper', '<div class="t"><a href="' + URLS.pubmedId(r.pmid) + '" target="_blank" rel="noopener">' + esc(r.t) + '</a></div><div class="m">' + esc([r.a, r.j, r.y].filter(Boolean).join(' · ')) + (r.c ? ' · ' + r.c + ' cites' : '') + '</div>')); });
@@ -681,7 +697,7 @@
     var dl = el('div', 'links');
     dl.innerHTML = [['STRING', 'https://string-db.org/network/' + enc(GENE.ids.string)], ['Open Targets', URLS.ot(GENE.ids.ensembl)], ['UniProt', URLS.uniprot(GENE.ids.uniprot)], ['NCBI Gene', URLS.ncbi(GENE.ids.entrez)], ['Ensembl', URLS.ensembl(GENE.ids.ensembl)], ['GeneCards', URLS.genecards('CTBP1')], ['AlphaFold', URLS.alphafold(GENE.ids.uniprot)]].map(function (x) { return '<a href="' + x[1] + '" target="_blank" rel="noopener">' + x[0] + ' ↗</a>'; }).join('');
     box.appendChild(sec('Open in databases', null, dl));
-    box.appendChild(aiBlock('AI context — CTBP1 hub', aiForHub(), 'CTBP1'));
+    box.appendChild(aiBlock('AI context: CTBP1 hub', aiForHub(), 'CTBP1'));
     return box;
   }
 
@@ -690,19 +706,17 @@
   // ======================================================================
   function aiBlock(title, text, scope) {
     var b = el('div', 'aiblock');
-    b.innerHTML = '<div class="head"><span class="label-caps">' + esc(title) + '</span><button class="copyai aicopy" style="margin-left:auto" title="Copy this ' + esc(scope) + ' AI context to the clipboard"><span class="k">⧉</span> Copy</button></div>';
+    b.innerHTML = '<div class="head"><span class="label-caps">' + esc(title) + ' ' + info('aictx') + '</span><button class="copyai aicopy" style="margin-left:auto" title="Copy this ' + esc(scope) + ' AI context to the clipboard"><span class="k">⧉</span> Copy</button></div>';
     var pre = el('pre'); pre.textContent = text; b.appendChild(pre);
     return b;
   }
   function aiForGene(p) {
     var n = p.node, q = cmQueries(n), cm = n.comention || {};
     var L = [];
-    L.push('CTBP1 ATLAS — ' + p.sym + ' (' + n.name + ')');
+    L.push('CTBP1 INTERACTOME ATLAS: ' + p.sym + ' (' + n.name + ')');
     L.push('Rank #' + p.rank + ' of ' + analysis.length + ' STRING interactors · connection type: ' + p.type);
     L.push('IDs: Ensembl ' + n.ensembl + ' | Entrez ' + n.entrez + ' | UniProt ' + n.uniprot + (n.mim ? ' | OMIM ' + n.mim : ''));
-    L.push('Composite ' + p.composite.toFixed(0) + '/100 (weights phys ' + W.phys + ' / lit ' + W.lit + ' / ctx ' + W.ctx + ')  ·  physical ' + f2(p.phys) + ' · literature ' + f2(p.lit) + ' · network ' + f2(p.ctx));
-    L.push('STRING channels: combined ' + f2(n.s.c) + ' | experiments ' + f2(n.s.e) + ' | databases ' + f2(n.s.d) + ' | text-mining ' + f2(n.s.t) + ' | co-expr ' + f2(n.s.a) + ' | fusion ' + f2(n.s.p) + ' | neighborhood ' + f2(n.s.n) + ' | co-occurrence ' + f2(n.s.f));
-    L.push('  STRING: ' + URLS.string(p.sym));
+    L.push('STRING network: ' + URLS.string(p.sym));
     if (n.intact) L.push('IntAct: ' + n.intact.type + (n.intact.direct ? ' (DIRECT)' : '') + ' · MI-score ' + n.intact.miscore + ' · ' + n.intact.count + ' records · methods: ' + (n.intact.methods || []).join('; ') + ' · PMIDs ' + (n.intact.pmids || []).join(', ') + '  → ' + URLS.intact(p.sym));
     if (p.flags.length) { L.push('Field memberships:'); p.flags.forEach(function (fl) { L.push('  - ' + fl.label + ' (sev ' + fl.sev + ', strength ' + f2(fl.strength) + '): ' + fl.source + (fl.top && fl.top.n ? ' · e.g. ' + fl.top.n + ' (' + f2(fl.top.s) + ')' : '')); }); }
     if (p.mech.length) L.push('Mechanism tags: ' + p.mech.map(function (m) { return m.label; }).join(', '));
@@ -715,22 +729,22 @@
     if (n.clinvar) L.push('ClinVar: P/LP ' + n.clinvar.plp + ' (' + URLS.clinvarPLP(p.sym) + ') · VUS ' + n.clinvar.vus + ' (' + URLS.clinvarVUS(p.sym) + ') · total ' + n.clinvar.total + ' (' + URLS.clinvarTotal(p.sym) + ')');
     if ((n.phenotypes || []).length) L.push('HPO phenotypes (' + n.phenoCount + ' total): ' + n.phenotypes.slice(0, 12).join('; ') + '  → ' + URLS.hpo(n.entrez) + ' | ' + URLS.monarch(n.entrez));
     if ((n.pathways || []).length) L.push('Reactome pathways: ' + n.pathways.slice(0, 10).join('; '));
-    if (p.stop) L.push('NOTE: ambiguous/house-keeping symbol — literature co-mention excluded from the literature score.');
+    if (p.stop) L.push('NOTE: ambiguous/house-keeping symbol; literature co-mention excluded from the literature score.');
     return L.join('\n');
   }
   function aiForLens(key) {
     var T = THEMES[key];
     var members = analysis.filter(function (p) { return p.themes[key] !== undefined; }).sort(function (a, b) { return b.themes[key] - a.themes[key]; });
-    var L = ['CTBP1 ATLAS — disease lens: ' + T.label, 'Membership rule: ' + ruleLong(T).replace(/<[^>]+>/g, ''), members.length + ' member genes (by strength):'];
+    var L = ['CTBP1 INTERACTOME ATLAS, disease lens: ' + T.label, 'Membership rule: ' + ruleLong(T).replace(/<[^>]+>/g, ''), members.length + ' member genes (by strength):'];
     members.forEach(function (p) { var fl = p.flags.filter(function (x) { return x.key === key; })[0]; L.push('  - ' + p.sym + ' (strength ' + f2(fl.strength) + ', sev ' + fl.sev + '): ' + fl.source); });
     if (key === 'aging' && (GENE.agingRefs || []).length) {
-      L.push('Curated CTBP1 aging/longevity reading list (ortholog-aware — CtBP1 / CTBP-1 / ctbp-1):');
+      L.push('Curated CTBP1 aging/longevity reading list (ortholog-aware: CtBP1 / CTBP-1 / ctbp-1):');
       GENE.agingRefs.forEach(function (r) { L.push('  · ' + (r.t || ('PMID ' + r.pmid)) + ' [' + [r.a, r.j, r.y].filter(Boolean).join(', ') + '] PMID ' + r.pmid + '  ' + URLS.pubmedId(r.pmid)); });
     }
     return L.join('\n');
   }
   function aiForHub() {
-    var L = ['CTBP1 ATLAS — hub: CTBP1 (' + GENE.name + ')'];
+    var L = ['CTBP1 INTERACTOME ATLAS, hub: CTBP1 (' + GENE.name + ')'];
     L.push('IDs: Ensembl ' + GENE.ids.ensembl + ' | Entrez ' + GENE.ids.entrez + ' | UniProt ' + GENE.ids.uniprot + (GENE.mim ? ' | OMIM ' + GENE.mim : ''));
     if (GENE.summary) L.push('Summary: ' + GENE.summary);
     if (GENE.uniprotFunc) L.push('Function (UniProt): ' + GENE.uniprotFunc);
@@ -743,7 +757,7 @@
     return L.join('\n');
   }
   function aiForAll() {
-    var parts = ['================ CTBP1 ATLAS — FULL AI CONTEXT ================', aiForHub(), ''];
+    var parts = ['================ CTBP1 INTERACTOME ATLAS: FULL AI CONTEXT ================', aiForHub(), ''];
     ORDER.forEach(function (k) { parts.push('---- LENS: ' + THEMES[k].label + ' ----', aiForLens(k), ''); });
     parts.push('================ ALL ' + analysis.length + ' INTERACTORS ================', '');
     analysis.forEach(function (p) { parts.push(aiForGene(p), ''); });
@@ -753,6 +767,25 @@
   // ======================================================================
   // header buttons + modal
   // ======================================================================
+  // ---- theme (light is the canonical design; dark is an opt-in token override) ----
+  function applyTheme(dark) {
+    state.dark = !!dark;
+    document.documentElement.setAttribute('data-theme', state.dark ? 'dark' : 'light');
+    var b = $('btnTheme');
+    if (b) {
+      b.setAttribute('aria-pressed', state.dark ? 'true' : 'false');
+      b.textContent = state.dark ? '☀' : '☾';
+      b.title = state.dark ? 'Switch to light mode' : 'Switch to dark mode';
+    }
+    try { localStorage.setItem('ctbp1-theme', state.dark ? 'dark' : 'light'); } catch (e) {}
+    if (state.view === 'constellation' && $('cz') && $('cz').width) drawConstellation();   // re-theme canvas; skip until sized
+  }
+  function initTheme() {
+    var saved = 'light';                       // default = light, the canonical white-mode design
+    try { saved = localStorage.getItem('ctbp1-theme') || 'light'; } catch (e) {}
+    applyTheme(saved === 'dark');
+  }
+
   function wireHeader() {
     // provenance strip is closed by default; the header "ⓘ Sources" button toggles it, ✕ closes it
     function setStrip(open) { var b = $('insightBar'), sb = $('btnSources'); if (b) b.classList.toggle('hidden', !open); if (sb) sb.setAttribute('aria-pressed', open ? 'true' : 'false'); }
@@ -765,6 +798,13 @@
     var dz = $('btnDossier'); if (dz) dz.addEventListener('click', function () { document.body.classList.remove('panel-open'); document.body.classList.toggle('drawer-open'); });
     var dc = $('btnDrawerClose'); if (dc) dc.addEventListener('click', function () { document.body.classList.remove('drawer-open'); });
     var hh = $('btnHubHome'); if (hh) hh.addEventListener('click', goHub);
+    // clicking the top-left brand/logo behaves like the "⌂ CTBP1 hub" button — jump back to the hub
+    var brand = $('brandHome');
+    if (brand) {
+      brand.addEventListener('click', goHub);
+      brand.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHub(); } });
+    }
+    var th = $('btnTheme'); if (th) th.addEventListener('click', function () { applyTheme(!state.dark); });
     var bk = $('backdrop'); if (bk) bk.addEventListener('click', closeAll);
   }
 
@@ -785,7 +825,8 @@
   // boot
   // ======================================================================
   function boot() {
-    renderChips(); renderLenses(); wireWeights(); wireHeader(); renderInsight(); renderDiscoveries();
+    initTheme();                          // set data-theme before first paint (no light→dark flash)
+    renderChips(); renderLenses(); wireControls(); wireHeader(); renderInsight(); renderDiscoveries();
     document.querySelectorAll('#viewTabs button').forEach(function (b) { b.addEventListener('click', function () { setView(b.getAttribute('data-view')); }); });
     wireCanvas($('cz'), 'constellation');
     wireGlossary(document);
